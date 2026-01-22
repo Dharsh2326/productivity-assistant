@@ -1,8 +1,9 @@
-# Environment variables
+# Environment
 .env
+venv/
+env/
 
 # Python
-venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -11,6 +12,13 @@ __pycache__/
 
 # Database
 data/
+*.db
+*.db-journal
+
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/dist/
 
 # IDE
 .vscode/
