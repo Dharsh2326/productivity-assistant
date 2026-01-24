@@ -1,68 +1,113 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import sys
-import os
+from datetime import datetime, timedelta
 
-# Add parent directory to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from backend.config import Config
-from backend.database import Database
-from backend.vector_store import VectorStore
-from backend.llm_service import LLMService
-from backend.intent_processor import IntentProcessor
+from .config import Config
+from .database import Database
+from .vector_store import VectorStore
+from .llm_extraction.llm_service import LLMService
+from .processing.intent_processor import IntentProcessor
+from .processing.sync_orchestrator import SyncOrchestrator
+from .visualizer.day_view_generator import DayViewGenerator
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/api/*": {
-        "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
-        "methods": ["GET", "POST", "PUT", "DELETE"],
-        "allow_headers": ["Content-Type"]
-    },
-    r"/health": {
-        "origins": "*"
-    }
-})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Initialize services
 db = Database(Config.DATABASE_PATH)
 vector_store = VectorStore()
 llm_service = LLMService()
 processor = IntentProcessor(db, vector_store)
+sync_orchestrator = SyncOrchestrator(db, llm_service, use_mock=Config.USE_MOCK_DATA)
+visualizer = DayViewGenerator()
+
+# ===== EXISTING ENDPOINTS =====
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Health check endpoint"""
-    return jsonify({"status": "healthy", "message": "Productivity Assistant API is running"})
+    return jsonify({
+        "status": "healthy",
+        "message": "Productivity Assistant API is running",
+        "features": {
+            "mock_data": Config.USE_MOCK_DATA,
+            "llm_model": Config.OLLAMA_MODEL
+        }
+    })
 
 @app.route('/api/parse', methods=['POST'])
 def parse_input():
-    """Parse natural language input and create items"""
-    data = request.get_json()
-    user_input = data.get('input', '')
-    
-    if not user_input:
-        return jsonify({"error": "No input provided"}), 400
-    
-    # Call LLM
-    llm_result = llm_service.parse_natural_language(user_input)
-    
-    if not llm_result['success']:
-        return jsonify(llm_result), 500
-    
-    # Process and store items
-    items = llm_result['data'].get('items', [])
-    created_items = processor.process_items(items)
-    
-    return jsonify({
-        "success": True,
-        "items": created_items,
-        "count": len(created_items)
-    })
+    """Parse natural language input (manual entry)"""
+    try:
+        data = request.get_json()
+        user_input = data.get('input', '')
+        
+        if not user_input:
+            return jsonify({"success": False, "error": "No input provided"}), 400
+        
+        llm_result = llm_service.parse_natural_language(user_input)
+        
+        if not llm_result['success']:
+            return jsonify({
+                "success": False,
+                "error": llm_result.get('error', 'LLM processing failed'),
+                "details": llm_result.get('details', '')
+            }), 500
+        
+        items = llm_result['data'].get('items', [])
+        if not items:
+            return jsonify({
+                "success": False,
+                "error": "No items extracted from input",
+                "details": "LLM did not extract any items from your input"
+            }), 400
+        
+        # Validate items before processing
+        validated_items = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            if 'type' not in item or 'title' not in item:
+                continue
+            # Ensure required fields
+            validated_item = {
+                'type': item.get('type', 'task'),
+                'title': item.get('title', 'Untitled'),
+                'description': item.get('description'),
+                'datetime': item.get('datetime'),
+                'priority': item.get('priority', 'medium'),
+                'tags': item.get('tags', []),
+                'completed': item.get('completed', False)
+            }
+            validated_items.append(validated_item)
+        
+        if not validated_items:
+            return jsonify({
+                "success": False,
+                "error": "Invalid item structure",
+                "details": "Items must have 'type' and 'title' fields"
+            }), 400
+        
+        created_items = processor.process_items(validated_items)
+        
+        return jsonify({
+            "success": True,
+            "items": created_items,
+            "count": len(created_items)
+        })
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Error in parse_input: {str(e)}")
+        print(f"Traceback: {error_trace}")
+        return jsonify({
+            "success": False,
+            "error": "Server error",
+            "details": str(e)
+        }), 500
 
 @app.route('/api/items', methods=['GET'])
 def get_items():
-    """Get all items, optionally filtered by type"""
+    """Get all items"""
     item_type = request.args.get('type')
     items = db.get_all_items(item_type)
     
@@ -74,7 +119,7 @@ def get_items():
 
 @app.route('/api/items/<int:item_id>', methods=['GET'])
 def get_item(item_id):
-    """Get a single item by ID"""
+    """Get single item"""
     item = db.get_item_by_id(item_id)
     
     if not item:
@@ -87,7 +132,7 @@ def get_item(item_id):
 
 @app.route('/api/items/<int:item_id>', methods=['PUT'])
 def update_item(item_id):
-    """Update an item"""
+    """Update item"""
     data = request.get_json()
     
     success = db.update_item(item_id, data)
@@ -104,11 +149,8 @@ def update_item(item_id):
 
 @app.route('/api/items/<int:item_id>', methods=['DELETE'])
 def delete_item(item_id):
-    """Delete an item"""
-    # Delete from vector store
+    """Delete item"""
     vector_store.delete_item(item_id)
-    
-    # Delete from database
     success = db.delete_item(item_id)
     
     if not success:
@@ -121,17 +163,15 @@ def delete_item(item_id):
 
 @app.route('/api/search', methods=['POST'])
 def search():
-    """Semantic search for items"""
+    """Semantic search"""
     data = request.get_json()
     query = data.get('query', '')
     
     if not query:
         return jsonify({"error": "No query provided"}), 400
     
-    # Search vector store
     results = vector_store.search(query, n_results=10)
     
-    # Get full items from database
     items = []
     for result in results:
         item = db.get_item_by_id(result['id'])
@@ -145,6 +185,109 @@ def search():
         "items": items,
         "count": len(items)
     })
+
+# ===== NEW ENDPOINTS =====
+
+@app.route('/api/sync', methods=['POST'])
+def sync_external_data():
+    """
+    Sync calendar and email data.
+    
+    CURRENT: Uses mock data from JSON files
+    FUTURE: Will call real APIs when Config.USE_MOCK_DATA = False
+    """
+    try:
+        result = sync_orchestrator.sync_all()
+        
+        return jsonify({
+            'success': True,
+            'synced': result,
+            'message': f"Synced {result['total']} items"
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/items/grouped', methods=['GET'])
+def get_items_grouped():
+    """Get items grouped by day (today/tomorrow/upcoming)"""
+    view = request.args.get('view', 'all')
+    
+    all_items = db.get_all_items()
+    
+    today = datetime.now().date()
+    tomorrow = (datetime.now() + timedelta(days=1)).date()
+    
+    grouped = {
+        'today': [],
+        'tomorrow': [],
+        'upcoming': []
+    }
+    
+    for item in all_items:
+        if not item.get('datetime'):
+            grouped['upcoming'].append(item)
+            continue
+        
+        try:
+            item_date = datetime.fromisoformat(item['datetime']).date()
+            
+            if item_date == today:
+                grouped['today'].append(item)
+            elif item_date == tomorrow:
+                grouped['tomorrow'].append(item)
+            elif item_date > tomorrow:
+                grouped['upcoming'].append(item)
+        except:
+            grouped['upcoming'].append(item)
+    
+    if view == 'all':
+        return jsonify({'success': True, 'items': grouped})
+    else:
+        return jsonify({'success': True, 'items': grouped.get(view, [])})
+
+@app.route('/api/visualize/day', methods=['POST'])
+def visualize_day():
+    """Generate visual day view image"""
+    try:
+        data = request.get_json() or {}
+        date = data.get('date', datetime.now().strftime('%Y-%m-%d'))
+        
+        # Get items for that day
+        start_datetime = f"{date}T00:00:00"
+        end_datetime = f"{date}T23:59:59"
+        
+        day_items = db.get_items_by_date_range(start_datetime, end_datetime)
+        
+        # Ensure items have source field (default to 'manual' if missing)
+        for item in day_items:
+            if 'source' not in item:
+                item['source'] = 'manual'
+            if 'priority' not in item:
+                item['priority'] = 'medium'
+        
+        # Generate image
+        image_url = visualizer.generate(date, day_items)
+        
+        return jsonify({
+            'success': True,
+            'image_url': image_url,
+            'date': date,
+            'items_count': len(day_items)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/static/visualizations/<path:filename>')
+def serve_visualization(filename):
+    """Serve generated visualizations"""
+    return send_from_directory('backend/static/visualizations', filename)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

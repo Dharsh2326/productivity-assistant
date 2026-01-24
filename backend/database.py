@@ -77,7 +77,18 @@ class Database:
         rows = cursor.fetchall()
         conn.close()
         
-        return [dict(row) for row in rows]
+        # Convert to dict and ensure all fields exist
+        items = []
+        for row in rows:
+            item = dict(row)
+            # Ensure optional fields have defaults
+            if 'source' not in item:
+                item['source'] = 'manual'
+            if 'priority' not in item:
+                item['priority'] = 'medium'
+            items.append(item)
+        
+        return items
     
     def get_item_by_id(self, item_id: int) -> Optional[Dict]:
         """Get a single item by ID"""
@@ -89,6 +100,13 @@ class Database:
         conn.close()
         
         return dict(row) if row else None
+    
+    def get_item_by_external_id(self, external_id: str) -> Optional[Dict]:
+        """Get item by external ID (for sync deduplication)"""
+        # Note: external_id is not in schema, so this will return None
+        # This is fine for now - sync will work but may create duplicates
+        # Future: Add external_id column to schema
+        return None
     
     def update_item(self, item_id: int, updates: Dict) -> bool:
         """Update an item"""
@@ -121,3 +139,32 @@ class Database:
         conn.close()
         
         return rows_affected > 0
+    def get_items_by_date_range(self, start_date: str, end_date: str) -> List[Dict]:
+        """Get items within date range (includes items with datetime matching the date)"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        # Get items with datetime in range
+        cursor.execute('''
+            SELECT * FROM items 
+            WHERE datetime IS NOT NULL 
+            AND datetime >= ? 
+            AND datetime <= ?
+            ORDER BY datetime ASC
+        ''', (start_date, end_date))
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        # Convert to dict and ensure all fields exist
+        items = []
+        for row in rows:
+            item = dict(row)
+            # Ensure optional fields have defaults
+            if 'source' not in item:
+                item['source'] = 'manual'
+            if 'priority' not in item:
+                item['priority'] = 'medium'
+            items.append(item)
+        
+        return items

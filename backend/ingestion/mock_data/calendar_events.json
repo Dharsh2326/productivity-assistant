@@ -1,0 +1,75 @@
+[
+  {
+    "id": "cal_001",
+    "summary": "Team Standup",
+    "description": "Daily sync with engineering team",
+    "start": {
+      "dateTime": "2026-01-23T10:00:00"
+    },
+    "end": {
+      "dateTime": "2026-01-23T10:30:00"
+    },
+    "attendees": [
+      {"email": "alice@company.com"},
+      {"email": "bob@company.com"}
+    ]
+  },
+  {
+    "id": "cal_002",
+    "summary": "Client Meeting - Project Alpha",
+    "description": "Discuss Q1 deliverables with client",
+    "start": {
+      "dateTime": "2026-01-23T14:00:00"
+    },
+    "end": {
+      "dateTime": "2026-01-23T15:00:00"
+    },
+    "attendees": [
+      {"email": "client@example.com"}
+    ]
+  },
+  {
+    "id": "cal_003",
+    "summary": "Sarah's Birthday 🎂",
+    "description": "Don't forget to wish Sarah!",
+    "start": {
+      "date": "2026-01-24"
+    },
+    "attendees": []
+  },
+  {
+    "id": "cal_004",
+    "summary": "Interview: Senior Developer",
+    "description": "Technical interview with candidate",
+    "start": {
+      "dateTime": "2026-01-24T11:00:00"
+    },
+    "end": {
+      "dateTime": "2026-01-24T12:00:00"
+    },
+    "attendees": [
+      {"email": "hr@company.com"}
+    ]
+  },
+  {
+    "id": "cal_005",
+    "summary": "Project Deadline: MVP Launch",
+    "description": "Final deadline for MVP deployment",
+    "start": {
+      "date": "2026-01-25"
+    },
+    "attendees": []
+  },
+  {
+    "id": "cal_006",
+    "summary": "Lunch with Marketing Team",
+    "description": "Discuss campaign strategy",
+    "start": {
+      "dateTime": "2026-01-27T12:30:00"
+    },
+    "end": {
+      "dateTime": "2026-01-27T13:30:00"
+    },
+    "attendees": []
+  }
+]

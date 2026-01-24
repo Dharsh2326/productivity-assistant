@@ -1,0 +1,227 @@
+.visual-day-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+/* ===== BUTTON STYLES ===== */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 0.875rem 2rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.visual-day-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 3rem;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-5px);
+}
+
+.visual-day-header h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.visual-day-header p {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.visual-day-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.controls-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  margin-bottom: 2rem;
+}
+
+.control-group {
+  margin-bottom: 1.5rem;
+}
+
+.control-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+}
+
+.date-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.generate-btn {
+  width: 100%;
+  font-size: 1.125rem;
+  padding: 1rem 2rem;
+}
+
+.info-box {
+  margin-top: 1.5rem;
+  background: #e0e7ff;
+  border: 2px solid #667eea;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.image-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.image-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.empty-state {
+  background: white;
+  padding: 4rem 2rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 2rem;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+}
+
+/* Fallback container for card view */
+.fallback-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.fallback-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.fallback-header h2 {
+  font-size: 2rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.fallback-header p {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.fallback-items {
+  display: grid;
+  gap: 1.25rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.empty-state p {
+  font-size: 1.125rem;
+  color: #64748b;
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "email_001",
+    "from": "hr@company.com",
+    "subject": "Reminder: Submit Q4 Expense Report by Friday",
+    "snippet": "Hi Team, This is a reminder to submit your Q4 2025 expense reports by end of day Friday, January 24th. Please use the finance portal...",
+    "date": "2026-01-22T09:15:00"
+  },
+  {
+    "id": "email_002",
+    "from": "events@university.edu",
+    "subject": "Seminar: AI in Healthcare - January 26, 3 PM",
+    "snippet": "Join us for an exciting seminar on AI applications in healthcare. Dr. Jane Smith will present her latest research on predictive diagnostics...",
+    "date": "2026-01-22T11:30:00"
+  },
+  {
+    "id": "email_003",
+    "from": "recruiting@techcorp.com",
+    "subject": "Interview Scheduled: Senior Engineer Position - Jan 24, 2 PM",
+    "snippet": "Dear Candidate, Your interview for the Senior Software Engineer position has been scheduled for January 24, 2026 at 2:00 PM. Please prepare...",
+    "date": "2026-01-22T14:00:00"
+  },
+  {
+    "id": "email_004",
+    "from": "manager@company.com",
+    "subject": "Action Required: Review PRD by Monday",
+    "snippet": "Team, Please review the attached Product Requirements Document and provide feedback by Monday morning. This is critical for our Q1 planning...",
+    "date": "2026-01-22T16:45:00"
+  },
+  {
+    "id": "email_005",
+    "from": "conference@aiml2026.org",
+    "subject": "Workshop: Prompt Engineering Best Practices - Jan 28",
+    "snippet": "You're invited to our hands-on workshop on prompt engineering techniques. Learn how to optimize LLM outputs for production systems...",
+    "date": "2026-01-23T08:00:00"
+  }
+]

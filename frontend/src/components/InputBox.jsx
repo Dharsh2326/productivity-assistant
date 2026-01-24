@@ -19,13 +19,24 @@ function InputBox({ onSubmit }) {
     }
   };
 
+  const handleKeyDown = (e) => {
+    // Allow Enter to submit, but Shift+Enter for new line
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (input.trim() && !loading) {
+        handleSubmit(e);
+      }
+    }
+  };
+
   return (
     <div className="input-box">
       <form onSubmit={handleSubmit}>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type naturally: 'Remind me to call mom tomorrow at 5pm' or 'Buy groceries next week' or 'Note: Meeting with team about Q1 goals'"
+          onKeyDown={handleKeyDown}
+          placeholder="Type naturally: 'Remind me to call mom tomorrow at 5pm' or 'Buy groceries next week' or 'Note: Meeting with team about Q1 goals' (Press Enter to submit, Shift+Enter for new line)"
           rows="4"
           disabled={loading}
           className="input-textarea"

@@ -1,22 +1,28 @@
 import json
 import requests
-from .config import Config
-from backend.prompt import get_system_prompt, get_user_prompt
+from typing import Dict
+from ..config import Config
+from .prompts import get_system_prompt, get_user_prompt
 
 class LLMService:
+    """
+    LLM-based intelligence layer.
+    
+    Responsibilities:
+    - Parse natural language input
+    - Extract structured data from emails
+    - Classify content types
+    """
+    
     def __init__(self):
         self.base_url = Config.OLLAMA_BASE_URL
         self.model = Config.OLLAMA_MODEL
     
     def parse_natural_language(self, user_input: str) -> dict:
-        """
-        Send natural language input to Ollama and get structured JSON back
-        """
+        """Send natural language input to Ollama and get structured JSON back"""
         try:
-            # Prepare the prompt
             full_prompt = f"{get_system_prompt()}\n\n{get_user_prompt(user_input)}"
             
-            # Call Ollama API
             response = requests.post(
                 f"{self.base_url}/api/generate",
                 json={
@@ -26,10 +32,11 @@ class LLMService:
                     "format": "json",
                     "options": {
                         "temperature": 0.1,
-                        "num_predict": 500
+                        "num_predict": 300,  # Reduced for faster response
+                        "num_ctx": 2048  # Smaller context for speed
                     }
                 },
-                timeout=30
+                timeout=15  # Reduced timeout
             )
             
             if response.status_code != 200:
@@ -39,21 +46,18 @@ class LLMService:
                     "details": f"Status code: {response.status_code}"
                 }
             
-            # Extract response
             ollama_response = response.json()
             response_text = ollama_response.get('response', '')
             
-            # Clean the response
+            # Clean response
             response_text = response_text.strip()
             if response_text.startswith('```json'):
                 response_text = response_text.replace('```json', '').replace('```', '').strip()
             elif response_text.startswith('```'):
                 response_text = response_text.replace('```', '').strip()
             
-            # Parse JSON
             parsed = json.loads(response_text)
             
-            # Validate structure
             if 'items' not in parsed:
                 if 'type' in parsed and 'title' in parsed:
                     parsed = {'items': [parsed]}
@@ -95,3 +99,53 @@ class LLMService:
                 "error": "LLM service error",
                 "details": str(e)
             }
+    
+    def extract_from_email(self, email_data: Dict) -> dict:
+        """
+        Extract task/reminder from email using LLM.
+        
+        Args:
+            email_data: Dict with 'subject', 'snippet', 'from'
+        
+        Returns:
+            Enhanced item dict with extracted datetime, refined priority, etc.
+        """
+        from .prompts import get_email_extraction_prompt
+        
+        prompt = get_email_extraction_prompt(
+            email_data.get('subject', ''),
+            email_data.get('snippet', '')
+        )
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/generate",
+                json={
+                    "model": self.model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "format": "json",
+                    "options": {"temperature": 0.1, "num_predict": 300}
+                },
+                timeout=20
+            )
+            
+            if response.status_code == 200:
+                result_text = response.json().get('response', '{}')
+                
+                # Clean
+                result_text = result_text.strip()
+                if result_text.startswith('```json'):
+                    result_text = result_text.replace('```json', '').replace('```', '').strip()
+                
+                result = json.loads(result_text)
+                
+                return {
+                    "success": True,
+                    "data": result
+                }
+            else:
+                return {"success": False, "error": "LLM request failed"}
+        
+        except Exception as e:
+            return {"success": False, "error": str(e)}

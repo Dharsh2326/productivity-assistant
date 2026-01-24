@@ -1,6 +1,7 @@
 from datetime import datetime
 
 def get_system_prompt() -> str:
+    """Prompt for manual natural language input"""
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     return f"""You are a productivity assistant. Extract structured information from natural language.
@@ -45,3 +46,37 @@ def get_user_prompt(user_input: str) -> str:
     return f"""Input: "{user_input}"
 
 Extract and return ONLY JSON (no explanation):"""
+
+def get_email_extraction_prompt(subject: str, snippet: str) -> str:
+    """Prompt for extracting tasks from email"""
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    return f"""You are analyzing an email to extract actionable items.
+
+Current datetime: {current_time}
+
+Email Subject: {subject}
+Email Snippet: {snippet[:200]}
+
+Extract:
+1. Is this email actionable? (meeting, deadline, seminar, action item)
+2. If YES, extract:
+   - Type: "task" (actionable item) or "reminder" (meeting/event)
+   - Title: Brief, clear summary
+   - DateTime: When it's due/scheduled (parse from text)
+   - Priority: Based on urgency words
+   - Refined description
+
+Return ONLY JSON:
+{{
+  "relevant": true/false,
+  "type": "task|reminder|note",
+  "title": "extracted title",
+  "description": "key details",
+  "datetime": "YYYY-MM-DDTHH:MM:SS or null",
+  "priority": "low|medium|high"
+}}
+
+If email is spam/newsletter/not actionable, return:
+{{"relevant": false}}
+"""
