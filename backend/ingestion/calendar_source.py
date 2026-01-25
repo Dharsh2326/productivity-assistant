@@ -2,32 +2,22 @@ import json
 import os
 from typing import List, Dict
 from datetime import datetime
-from .base import DataSource
+from ingestion.base import DataSource  # Changed
 
 class CalendarSource(DataSource):
-    """
-    Calendar event ingestion.
-    
-    CURRENT: Mock data from JSON
-    FUTURE: Google Calendar API integration
-    
-    To enable real Google Calendar:
-    1. Uncomment GoogleCalendarAPI class below
-    2. Add credentials.json and token.json
-    3. Update Config.USE_MOCK_DATA = False
-    """
+    """Calendar event ingestion - CURRENT: Mock data from JSON"""
     
     def __init__(self, use_mock=True):
         self.use_mock = use_mock
-        self.mock_file = 'backend/ingestion/mock_data/calendar_events.json'
+        # Use absolute path from current file location
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.mock_file = os.path.join(current_dir, 'mock_data', 'calendar_events.json')
     
     def fetch_data(self) -> List[Dict]:
         """Fetch calendar events"""
         if self.use_mock:
             return self._fetch_mock_data()
         else:
-            # TODO: Implement real Google Calendar API
-            # return self._fetch_google_calendar()
             raise NotImplementedError("Real Google Calendar integration not enabled")
     
     def _fetch_mock_data(self) -> List[Dict]:
@@ -44,17 +34,14 @@ class CalendarSource(DataSource):
         items = []
         
         for event in raw_events:
-            # Extract datetime
             start = event.get('start', {})
             if 'dateTime' in start:
                 event_datetime = start['dateTime']
             elif 'date' in start:
-                # All-day event
                 event_datetime = f"{start['date']}T09:00:00"
             else:
                 event_datetime = None
             
-            # Determine priority based on attendees
             attendees = event.get('attendees', [])
             if len(attendees) > 5:
                 priority = 'high'
@@ -63,9 +50,8 @@ class CalendarSource(DataSource):
             else:
                 priority = 'low'
             
-            # Detect event type from title
             title = event.get('summary', 'Untitled Event')
-            event_type = 'reminder'  # Default
+            event_type = 'reminder'
             
             if any(word in title.lower() for word in ['birthday', 'anniversary']):
                 event_type = 'note'
@@ -87,29 +73,3 @@ class CalendarSource(DataSource):
             items.append(item)
         
         return items
-    
-    # ========== FUTURE: Real Google Calendar Implementation ==========
-    # 
-    # def _fetch_google_calendar(self) -> List[Dict]:
-    #     """
-    #     Real Google Calendar API integration.
-    #     
-    #     Implementation:
-    #     from google.oauth2.credentials import Credentials
-    #     from googleapiclient.discovery import build
-    #     
-    #     creds = Credentials.from_authorized_user_file('backend/token.json')
-    #     service = build('calendar', 'v3', credentials=creds)
-    #     
-    #     now = datetime.utcnow().isoformat() + 'Z'
-    #     events_result = service.events().list(
-    #         calendarId='primary',
-    #         timeMin=now,
-    #         maxResults=50,
-    #         singleEvents=True,
-    #         orderBy='startTime'
-    #     ).execute()
-    #     
-    #     return events_result.get('items', [])
-    #     """
-    #     pass

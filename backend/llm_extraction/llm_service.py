@@ -1,19 +1,10 @@
 import json
 import requests
 from typing import Dict
-from ..config import Config
-from .prompts import get_system_prompt, get_user_prompt
+from config import Config  # Changed from ..config
+from llm_extraction.prompts import get_system_prompt, get_user_prompt, get_email_extraction_prompt  # Changed
 
 class LLMService:
-    """
-    LLM-based intelligence layer.
-    
-    Responsibilities:
-    - Parse natural language input
-    - Extract structured data from emails
-    - Classify content types
-    """
-    
     def __init__(self):
         self.base_url = Config.OLLAMA_BASE_URL
         self.model = Config.OLLAMA_MODEL
@@ -32,11 +23,11 @@ class LLMService:
                     "format": "json",
                     "options": {
                         "temperature": 0.1,
-                        "num_predict": 300,  # Reduced for faster response
-                        "num_ctx": 2048  # Smaller context for speed
+                        "num_predict": 200,  # Reduced for speed
+                        "num_ctx": 1024  # Reduced for speed
                     }
                 },
-                timeout=15  # Reduced timeout
+                timeout=15
             )
             
             if response.status_code != 200:
@@ -49,7 +40,6 @@ class LLMService:
             ollama_response = response.json()
             response_text = ollama_response.get('response', '')
             
-            # Clean response
             response_text = response_text.strip()
             if response_text.startswith('```json'):
                 response_text = response_text.replace('```json', '').replace('```', '').strip()
@@ -101,17 +91,7 @@ class LLMService:
             }
     
     def extract_from_email(self, email_data: Dict) -> dict:
-        """
-        Extract task/reminder from email using LLM.
-        
-        Args:
-            email_data: Dict with 'subject', 'snippet', 'from'
-        
-        Returns:
-            Enhanced item dict with extracted datetime, refined priority, etc.
-        """
-        from .prompts import get_email_extraction_prompt
-        
+        """Extract task/reminder from email using LLM"""
         prompt = get_email_extraction_prompt(
             email_data.get('subject', ''),
             email_data.get('snippet', '')
@@ -125,15 +105,13 @@ class LLMService:
                     "prompt": prompt,
                     "stream": False,
                     "format": "json",
-                    "options": {"temperature": 0.1, "num_predict": 300}
+                    "options": {"temperature": 0.1, "num_predict": 200}
                 },
                 timeout=20
             )
             
             if response.status_code == 200:
                 result_text = response.json().get('response', '{}')
-                
-                # Clean
                 result_text = result_text.strip()
                 if result_text.startswith('```json'):
                     result_text = result_text.replace('```json', '').replace('```', '').strip()

@@ -13,11 +13,11 @@ class Database:
         return conn
     
     def init_db(self):
-        """Initialize database schema"""
+        """Initialize database schema with ALL required columns"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        # Items table (unified for tasks, notes, reminders)
+        # Items table with source and external_id columns
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,16 +25,29 @@ class Database:
                 title TEXT NOT NULL,
                 description TEXT,
                 datetime TEXT,
-                priority TEXT CHECK(priority IN ('low', 'medium', 'high')),
+                priority TEXT CHECK(priority IN ('low', 'medium', 'high')) DEFAULT 'medium',
                 tags TEXT,
                 completed BOOLEAN DEFAULT 0,
+                source TEXT DEFAULT 'manual',
+                external_id TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             )
         ''')
         
+        # Create index for external_id lookups
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_external_id ON items(external_id)
+        ''')
+        
+        # Create index for datetime queries
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_datetime ON items(datetime)
+        ''')
+        
         conn.commit()
         conn.close()
+        print(" Database initialized with complete schema")
     
     def create_item(self, item_data: Dict) -> int:
         """Create a new item"""
@@ -44,16 +57,21 @@ class Database:
         now = datetime.now().isoformat()
         
         cursor.execute('''
-            INSERT INTO items (type, title, description, datetime, priority, tags, completed, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO items (
+                type, title, description, datetime, priority, tags, 
+                completed, source, external_id, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            item_data.get('type'),
-            item_data.get('title'),
+            item_data.get('type', 'task'),
+            item_data.get('title', 'Untitled'),
             item_data.get('description'),
             item_data.get('datetime'),
             item_data.get('priority', 'medium'),
-            ','.join(item_data.get('tags', [])),
+            ','.join(item_data.get('tags', [])) if isinstance(item_data.get('tags'), list) else item_data.get('tags', ''),
             item_data.get('completed', False),
+            item_data.get('source', 'manual'),
+            item_data.get('external_id'),
             now,
             now
         ))
@@ -70,25 +88,14 @@ class Database:
         cursor = conn.cursor()
         
         if item_type:
-            cursor.execute('SELECT * FROM items WHERE type = ? ORDER BY created_at DESC', (item_type,))
+            cursor.execute('SELECT * FROM items WHERE type = ? ORDER BY datetime DESC, created_at DESC', (item_type,))
         else:
-            cursor.execute('SELECT * FROM items ORDER BY created_at DESC')
+            cursor.execute('SELECT * FROM items ORDER BY datetime DESC, created_at DESC')
         
         rows = cursor.fetchall()
         conn.close()
         
-        # Convert to dict and ensure all fields exist
-        items = []
-        for row in rows:
-            item = dict(row)
-            # Ensure optional fields have defaults
-            if 'source' not in item:
-                item['source'] = 'manual'
-            if 'priority' not in item:
-                item['priority'] = 'medium'
-            items.append(item)
-        
-        return items
+        return [dict(row) for row in rows]
     
     def get_item_by_id(self, item_id: int) -> Optional[Dict]:
         """Get a single item by ID"""
@@ -103,10 +110,17 @@ class Database:
     
     def get_item_by_external_id(self, external_id: str) -> Optional[Dict]:
         """Get item by external ID (for sync deduplication)"""
-        # Note: external_id is not in schema, so this will return None
-        # This is fine for now - sync will work but may create duplicates
-        # Future: Add external_id column to schema
-        return None
+        if not external_id:
+            return None
+            
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM items WHERE external_id = ?', (external_id,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        return dict(row) if row else None
     
     def update_item(self, item_id: int, updates: Dict) -> bool:
         """Update an item"""
@@ -114,6 +128,10 @@ class Database:
         cursor = conn.cursor()
         
         updates['updated_at'] = datetime.now().isoformat()
+        
+        # Handle tags if it's a list
+        if 'tags' in updates and isinstance(updates['tags'], list):
+            updates['tags'] = ','.join(updates['tags'])
         
         # Build dynamic update query
         set_clause = ', '.join([f"{key} = ?" for key in updates.keys()])
@@ -139,12 +157,12 @@ class Database:
         conn.close()
         
         return rows_affected > 0
+    
     def get_items_by_date_range(self, start_date: str, end_date: str) -> List[Dict]:
-        """Get items within date range (includes items with datetime matching the date)"""
+        """Get items within date range"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        # Get items with datetime in range
         cursor.execute('''
             SELECT * FROM items 
             WHERE datetime IS NOT NULL 
@@ -156,15 +174,4 @@ class Database:
         rows = cursor.fetchall()
         conn.close()
         
-        # Convert to dict and ensure all fields exist
-        items = []
-        for row in rows:
-            item = dict(row)
-            # Ensure optional fields have defaults
-            if 'source' not in item:
-                item['source'] = 'manual'
-            if 'priority' not in item:
-                item['priority'] = 'medium'
-            items.append(item)
-        
-        return items
+        return [dict(row) for row in rows]

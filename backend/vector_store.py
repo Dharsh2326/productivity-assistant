@@ -1,6 +1,6 @@
 import chromadb
 from chromadb.config import Settings
-from .config import Config
+from config import Config  # Changed from .config
 from typing import List, Dict
 import os
 import shutil
@@ -26,13 +26,10 @@ class VectorStore:
             )
         except Exception as e:
             error_msg = str(e).lower()
-            # Check if it's a schema/database corruption issue
             if "no such column" in error_msg or "operationalerror" in error_msg:
-                print(f"⚠️  ChromaDB schema mismatch detected. Resetting ChromaDB database...")
+                print(f"  ChromaDB schema mismatch detected. Resetting ChromaDB database...")
                 self._reset_chromadb()
-                # Wait a moment for file handles to release
                 time.sleep(0.5)
-                # Retry initialization
                 self.client = chromadb.PersistentClient(
                     path=Config.CHROMA_PATH,
                     settings=Settings(anonymized_telemetry=False)
@@ -41,7 +38,7 @@ class VectorStore:
                     name="productivity_items",
                     metadata={"hnsw:space": "cosine"}
                 )
-                print("✅ ChromaDB database reset and reinitialized successfully")
+                print(" ChromaDB database reset and reinitialized successfully")
             else:
                 raise e
     
@@ -50,34 +47,28 @@ class VectorStore:
         chroma_path = Config.CHROMA_PATH
         sqlite_file = os.path.join(chroma_path, 'chroma.sqlite3')
         
-        # First, try to close any open SQLite connections
         try:
             if os.path.exists(sqlite_file):
-                # Try to close the database connection
                 conn = sqlite3.connect(sqlite_file)
                 conn.close()
                 time.sleep(0.2)
         except:
             pass
         
-        # Try to delete the SQLite file first (this is the main database)
         if os.path.exists(sqlite_file):
             try:
                 os.remove(sqlite_file)
-                print(f"✅ Deleted ChromaDB SQLite file")
+                print(f" Deleted ChromaDB SQLite file")
             except PermissionError:
-                print(f"⚠️  Could not delete SQLite file (may be locked). Trying alternative approach...")
-                # Try renaming it instead
                 try:
                     backup_name = sqlite_file + '.old.' + str(int(time.time()))
                     os.rename(sqlite_file, backup_name)
-                    print(f"✅ Renamed old SQLite file to {os.path.basename(backup_name)}")
+                    print(f" Renamed old SQLite file to {os.path.basename(backup_name)}")
                 except Exception as e2:
-                    print(f"⚠️  Could not rename file: {e2}")
+                    print(f"  Could not rename file: {e2}")
             except Exception as e:
-                print(f"⚠️  Error deleting SQLite file: {e}")
+                print(f"  Error deleting SQLite file: {e}")
         
-        # Try to delete subdirectories
         if os.path.exists(chroma_path):
             try:
                 for item in os.listdir(chroma_path):
@@ -85,11 +76,11 @@ class VectorStore:
                     if os.path.isdir(item_path):
                         try:
                             shutil.rmtree(item_path, onerror=self._handle_remove_readonly)
-                            print(f"✅ Deleted ChromaDB subdirectory: {item}")
+                            print(f" Deleted ChromaDB subdirectory: {item}")
                         except Exception as e:
-                            print(f"⚠️  Could not delete subdirectory {item}: {e}")
+                            print(f"  Could not delete subdirectory {item}: {e}")
             except Exception as e:
-                print(f"⚠️  Error cleaning ChromaDB directory: {e}")
+                print(f"  Error cleaning ChromaDB directory: {e}")
     
     def _handle_remove_readonly(self, func, path, exc):
         """Handle readonly files on Windows"""
@@ -104,11 +95,9 @@ class VectorStore:
                 print("Warning: Vector store collection not initialized, skipping vector add")
                 return
             
-            # Ensure text is not empty
             if not text or not text.strip():
                 text = "untitled"
             
-            # Ensure metadata values are strings (ChromaDB requirement)
             clean_metadata = {}
             for key, value in metadata.items():
                 if value is None:
@@ -124,9 +113,7 @@ class VectorStore:
                 metadatas=[clean_metadata]
             )
         except Exception as e:
-            # Non-critical error - log but don't fail
             print(f"Warning: Failed to add item to vector store: {e}")
-            # Don't raise - vector store is optional for basic functionality
     
     def search(self, query: str, n_results: int = 10) -> List[Dict]:
         """Semantic search for items"""

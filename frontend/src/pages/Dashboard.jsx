@@ -8,10 +8,8 @@ import {
   syncExternalData, 
   parseInput, 
   deleteItem, 
-  updateItem,
-  searchItems 
+  updateItem
 } from '../services/api';
-import { Search, X } from 'lucide-react';
 import '../styles/Dashboard.css';
 
 function DashboardPage() {
@@ -21,13 +19,10 @@ function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchMode, setSearchMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     loadItems();
-  }, [activeView, searchMode]);
+  }, [activeView]);
 
   const loadItems = async () => {
     setLoading(true);
@@ -42,7 +37,7 @@ function DashboardPage() {
         allItems = response.items[activeView] || [];
       }
       
-      // Filter out completed items - they should disappear
+      // Filter out completed items
       const activeItems = allItems.filter(item => !item.completed);
       setItems(activeItems);
     } catch (error) {
@@ -100,37 +95,11 @@ function DashboardPage() {
       if (completed) {
         setItems(items.filter(item => item.id !== id));
       } else {
-        // Reload items if uncompleted
         loadItems();
       }
     } catch (error) {
       setError('Failed to update item');
     }
-  };
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    
-    setLoading(true);
-    try {
-      const response = await searchItems(searchQuery);
-      // Filter out completed items from search results - they should disappear
-      const activeResults = response.items.filter(item => !item.completed);
-      setItems(activeResults);
-      setSearchMode(true);
-      setShowSearch(false);
-    } catch (error) {
-      setError('Search failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClearSearch = () => {
-    setSearchMode(false);
-    setSearchQuery('');
-    loadItems();
   };
 
   const handleLogout = () => {
@@ -161,50 +130,14 @@ function DashboardPage() {
         <div className="dashboard-header">
           <div>
             <h1>
-              {searchMode ? '🔍 Search Results' :
-               activeView === 'today' ? '📅 Today' : 
+              {activeView === 'today' ? '📅 Today' : 
                activeView === 'tomorrow' ? '🌅 Tomorrow' : 
                '📋 Upcoming'}
             </h1>
             <p className="view-subtitle">
-              {searchMode ? `Showing results for "${searchQuery}"` : 
-               `${items.length} active ${items.length === 1 ? 'item' : 'items'}`}
+              {items.length} active {items.length === 1 ? 'item' : 'items'}
             </p>
           </div>
-        </div>
-
-        {/* Search in corner */}
-        <div className="search-corner">
-          {searchMode ? (
-            <button className="search-corner-btn clear" onClick={handleClearSearch} title="Clear Search">
-              <X size={18} />
-            </button>
-          ) : (
-            <>
-              {showSearch ? (
-                <form onSubmit={handleSearch} className="search-corner-form">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search..."
-                    className="search-corner-input"
-                    autoFocus
-                  />
-                  <button type="submit" className="search-corner-submit" disabled={!searchQuery.trim()}>
-                    <Search size={16} />
-                  </button>
-                  <button type="button" className="search-corner-close" onClick={() => setShowSearch(false)}>
-                    <X size={16} />
-                  </button>
-                </form>
-              ) : (
-                <button className="search-corner-btn" onClick={() => setShowSearch(true)} title="Search">
-                  <Search size={18} />
-                </button>
-              )}
-            </>
-          )}
         </div>
 
         <section className="input-section">

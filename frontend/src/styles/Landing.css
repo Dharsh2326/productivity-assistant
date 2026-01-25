@@ -1,7 +1,7 @@
 :root {
-  --primary: #6366F1;
-  --primary-dark: #4F46E5;
-  --accent: #EC4899;
+  --primary: hsl(350, 89%, 60%);
+  --primary-dark: #E11D48;
+  --accent: #FB7185;
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
@@ -9,7 +9,7 @@
   --text-light: #64748B;
   --bg: #F1F5F9;
   --surface: #FFFFFF;
-  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
 }
 
 * {
@@ -91,10 +91,10 @@
 .hero-title-main {
   font-size: clamp(3rem, 8vw, 5rem);
   font-weight: 800;
-  color: #fff;
   margin-bottom: 1rem;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: white;
 }
 
 .hero-subtitle-main {
@@ -423,6 +423,17 @@
 
 /*PERFECT FOR EVERYONE - ZIGZAG */
 
+.zigzag-real-image {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.zigzag-real-image:hover {
+  transform: scale(1.05);
+}
 .use-cases-zigzag {
   padding: 6rem 2rem;
   background: var(--bg);

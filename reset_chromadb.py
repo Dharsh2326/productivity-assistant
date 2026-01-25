@@ -1,7 +1,3 @@
-"""
-Standalone script to reset ChromaDB database
-Run this from the project root: python reset_chromadb.py
-"""
 import os
 import shutil
 import sqlite3
@@ -21,11 +17,11 @@ def reset_chromadb():
     sqlite_file = os.path.join(chroma_path, 'chroma.sqlite3')
     
     if not os.path.exists(chroma_path):
-        print(f"✅ ChromaDB database doesn't exist at {chroma_path}")
+        print(f" ChromaDB database doesn't exist at {chroma_path}")
         print("   It will be created automatically on next backend start.")
         return
     
-    print(f"🗑️  Deleting ChromaDB database at {chroma_path}...")
+    print(f" Deleting ChromaDB database at {chroma_path}...")
     
     # Try to close SQLite connection first
     if os.path.exists(sqlite_file):
@@ -40,16 +36,16 @@ def reset_chromadb():
     if os.path.exists(sqlite_file):
         try:
             os.remove(sqlite_file)
-            print("✅ Deleted chroma.sqlite3")
+            print(" Deleted chroma.sqlite3")
         except PermissionError:
             try:
                 backup_name = sqlite_file + '.old.' + str(int(time.time()))
                 os.rename(sqlite_file, backup_name)
-                print(f"✅ Renamed SQLite file (was locked)")
+                print(f" Renamed SQLite file (was locked)")
             except Exception as e:
-                print(f"⚠️  Could not delete/rename SQLite file: {e}")
+                print(f" Could not delete/rename SQLite file: {e}")
         except Exception as e:
-            print(f"⚠️  Error with SQLite file: {e}")
+            print(f" Error with SQLite file: {e}")
     
     # Delete directory contents
     try:
@@ -59,19 +55,19 @@ def reset_chromadb():
                 try:
                     shutil.rmtree(item_path, onerror=handle_remove_readonly)
                 except Exception as e:
-                    print(f"⚠️  Could not delete {item}: {e}")
+                    print(f" Could not delete {item}: {e}")
         
         # Try to remove the directory itself
         try:
             os.rmdir(chroma_path)
-            print("✅ ChromaDB directory deleted")
+            print(" ChromaDB directory deleted")
         except:
-            print("⚠️  Some files may remain, but main database is cleared")
+            print(" Some files may remain, but main database is cleared")
         
-        print("✅ ChromaDB database reset successfully")
+        print(" ChromaDB database reset successfully")
         print("   It will be recreated automatically on next backend start.")
     except Exception as e:
-        print(f"❌ Error deleting ChromaDB database: {e}")
+        print(f"Error deleting ChromaDB database: {e}")
         print("   Try running: python fix_chromadb.py")
         print(f"   Or manually delete: {os.path.abspath(chroma_path)}")
 

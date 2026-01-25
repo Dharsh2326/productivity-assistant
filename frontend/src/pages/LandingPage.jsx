@@ -2,7 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Brain, Search, Sparkles, Zap, Mail, ArrowRight, CheckCircle, Clock } from 'lucide-react';
 import FeatureCard from '../components/FeatureCard';
 import '../styles/Landing.css';
-
+import personalImg from '../assets/images/personalImg.png';
+import professionalImg from '../assets/images/professionalImg.png';
+import studentImg from '../assets/images/StudentsImg.png';
 function LandingPage() {
   const navigate = useNavigate();
 
@@ -34,18 +36,21 @@ function LandingPage() {
       title: 'For Professionals',
       description: 'Track meetings, deadlines, and project tasks with natural language input. Stay on top of your work schedule effortlessly.',
       example: '"Team standup tomorrow at 9am" → Reminder created automatically',
+      imageUrl: professionalImg,
       imageType: 'professional'
     },
     {
       title: 'For Students',
       description: 'Never miss an assignment or exam with AI-powered deadline tracking. Organize study sessions and project work seamlessly.',
       example: '"Math assignment due Friday" → High priority task with date',
+      imageUrl: studentImg,
       imageType: 'student'
     },
     {
       title: 'For Personal Life',
       description: 'Organize errands, appointments, and personal goals effortlessly. Keep your life balanced and stress-free.',
       example: '"Buy groceries this weekend" → Shopping task for Saturday',
+      imageUrl: personalImg,
       imageType: 'personal'
     },
   ];
@@ -61,7 +66,7 @@ function LandingPage() {
         <div className="hero-container">
           {/* CENTERED APP NAME */}
           <div className="hero-title-section">
-            <h1 className="hero-title-main">✨ TaskMaster Pro</h1>
+            <h1 className="hero-title-main">AuraPlan</h1>
             <p className="hero-subtitle-main">Your AI-powered productivity companion</p>
           </div>
 
@@ -93,7 +98,7 @@ function LandingPage() {
                     <span></span>
                     <span></span>
                   </div>
-                  <div className="mockup-title">TaskMaster Dashboard</div>
+                  <div className="mockup-title">AuraPlan Dashboard</div>
                 </div>
                 <div className="mockup-content">
                   <div className="mockup-input">
@@ -183,41 +188,52 @@ function LandingPage() {
                 </div>
               </div>
               <div className="zigzag-image">
-                <div className={`placeholder-image ${useCase.imageType}`}>
-                  {useCase.imageType === 'professional' && (
+                {/* CONDITIONAL: Show real image if provided, else placeholder */}
+                {useCase.imageUrl ? (
+                  <img 
+                    src={useCase.imageUrl} 
+                    alt={useCase.title}
+                    className="zigzag-real-image"
+                  />
+                ) : (
+                  <div className={`placeholder-image ${useCase.imageType}`}>
                     <div className="placeholder-content">
-                      <div className="placeholder-icon">💼</div>
-                      <div className="placeholder-text">Professional Dashboard</div>
+                      <div className="placeholder-icon">
+                        {useCase.imageType === 'professional' && '💼'}
+                        {useCase.imageType === 'student' && '🎓'}
+                        {useCase.imageType === 'personal' && '🏠'}
+                      </div>
+                      <div className="placeholder-text">
+                        {useCase.imageType === 'professional' && 'Professional Dashboard'}
+                        {useCase.imageType === 'student' && 'Student Planner'}
+                        {useCase.imageType === 'personal' && 'Personal Life'}
+                      </div>
                       <div className="placeholder-items">
-                        <div className="placeholder-item">📊 Q1 Report</div>
-                        <div className="placeholder-item">👥 Client Meeting</div>
-                        <div className="placeholder-item">📧 Email Review</div>
+                        {useCase.imageType === 'professional' && (
+                          <>
+                            <div className="placeholder-item">📊 Q1 Report</div>
+                            <div className="placeholder-item">👥 Client Meeting</div>
+                            <div className="placeholder-item">📧 Email Review</div>
+                          </>
+                        )}
+                        {useCase.imageType === 'student' && (
+                          <>
+                            <div className="placeholder-item">📚 Study Math</div>
+                            <div className="placeholder-item">✍️ Essay Draft</div>
+                            <div className="placeholder-item">🔬 Lab Report</div>
+                          </>
+                        )}
+                        {useCase.imageType === 'personal' && (
+                          <>
+                            <div className="placeholder-item">🛒 Groceries</div>
+                            <div className="placeholder-item">🏃 Gym Session</div>
+                            <div className="placeholder-item">👨‍👩‍👧 Family Time</div>
+                          </>
+                        )}
                       </div>
                     </div>
-                  )}
-                  {useCase.imageType === 'student' && (
-                    <div className="placeholder-content">
-                      <div className="placeholder-icon">🎓</div>
-                      <div className="placeholder-text">Student Planner</div>
-                      <div className="placeholder-items">
-                        <div className="placeholder-item">📚 Study Math</div>
-                        <div className="placeholder-item">✍️ Essay Draft</div>
-                        <div className="placeholder-item">🔬 Lab Report</div>
-                      </div>
-                    </div>
-                  )}
-                  {useCase.imageType === 'personal' && (
-                    <div className="placeholder-content">
-                      <div className="placeholder-icon">🏠</div>
-                      <div className="placeholder-text">Personal Life</div>
-                      <div className="placeholder-items">
-                        <div className="placeholder-item">🛒 Groceries</div>
-                        <div className="placeholder-item">🏃 Gym Session</div>
-                        <div className="placeholder-item">👨‍👩‍👧 Family Time</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -306,7 +322,7 @@ function LandingPage() {
           <div className="coming-soon-section">
             <div className="coming-soon-badge">🚀 COMING SOON</div>
             <h2 className="coming-soon-title">Upcoming Features</h2>
-            <p className="coming-soon-subtitle">We're constantly improving TaskMaster Pro</p>
+            <p className="coming-soon-subtitle">We're constantly improving AuraPlan</p>
             
             <div className="coming-features-grid">
               <div className="coming-feature">
@@ -345,7 +361,7 @@ function LandingPage() {
       <footer className="landing-footer-new">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>✨ TaskMaster Pro</h3>
+            <h3>✨ AuraPlan</h3>
             <p>AI-powered productivity for everyone</p>
           </div>
           <div className="footer-info">
