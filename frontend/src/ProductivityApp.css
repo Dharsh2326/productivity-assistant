@@ -228,14 +228,14 @@ html, body, #root {
 
 .input-textarea:focus {
   outline: none;
-  border-color: var(--pa-primary);
+  border-color: #8B5CF6;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .submit-btn {
   align-self: flex-end;
   padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, var(--pa-primary), var(--pa-secondary));
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
   color: white;
   border: none;
   border-radius: var(--pa-radius);

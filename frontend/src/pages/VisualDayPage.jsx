@@ -65,10 +65,6 @@ function VisualDayPage() {
   return (
     <div className="visual-day-page">
       <header className="visual-day-header">
-        <button className="back-btn" onClick={() => navigate('/dashboard')}>
-          <ArrowLeft size={20} />
-          Back to Dashboard
-        </button>
         <h1>📅 Visual Day View</h1>
         <p>Your tasks visualized beautifully</p>
       </header>
@@ -93,7 +89,7 @@ function VisualDayPage() {
             onClick={handleGenerate}
             disabled={loading}
           >
-            {loading ? '⏳ Generating...' : '✨ Generate Visual Day View'}
+            {loading ? '⏳ Generating...' : 'Generate Daily Timeline'}
           </button>
         </div>
 
@@ -144,7 +140,12 @@ function VisualDayPage() {
           </div>
         )}
       </div>
+      <button className="back-btn" onClick={() => navigate('/dashboard')}>
+          <ArrowLeft size={20} />
+          Back to Dashboard
+        </button>
     </div>
+    
   );
 }
 

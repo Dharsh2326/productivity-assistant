@@ -28,7 +28,7 @@ def check_ollama():
             print("  Ollama is running but returned unexpected status")
             return False
     except:
-        print("❌ Ollama is NOT running")
+        print(" Ollama is NOT running")
         print("   Please start Ollama first: ollama serve")
         print("   Or install from: https://ollama.ai")
         return False

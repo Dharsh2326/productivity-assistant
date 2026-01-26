@@ -1,4 +1,4 @@
-import { Calendar, Clock, List, Image, RefreshCw, LogOut } from 'lucide-react';
+import { Calendar, Clock, List, Image, RefreshCw, LogOut,CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function Sidebar({ activeView, onViewChange, onSync, syncLoading, onLogout }) {
@@ -13,7 +13,7 @@ function Sidebar({ activeView, onViewChange, onSync, syncLoading, onLogout }) {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h2>🚀 TaskMaster Pro</h2>
+        <h2>AuraPlan</h2>
       </div>
 
       <nav className="sidebar-nav">
@@ -23,7 +23,10 @@ function Sidebar({ activeView, onViewChange, onSync, syncLoading, onLogout }) {
             <button
               key={view.id}
               className={`nav-item ${activeView === view.id ? 'active' : ''}`}
-              onClick={() => onViewChange(view.id)}
+              onClick={() => { navigate('/dashboard');
+                navigate('/dashboard');
+                onViewChange(view.id);
+              }}
             >
               <Icon size={20} />
               <span>{view.label}</span>
@@ -46,8 +49,12 @@ function Sidebar({ activeView, onViewChange, onSync, syncLoading, onLogout }) {
         </button>
         <p className="sync-note">Calendar & Email sync coming soon!</p>
       </div>
-
       <div className="sidebar-footer">
+         <button className="completed-btn" onClick={() => navigate('/completed')}>
+              <CheckCircle size={18} />
+              Completed Tasks
+        </button>
+
         <button className="visual-day-btn" onClick={() => navigate('/day-view')}>
           <Image size={18} />
           Visual Day View

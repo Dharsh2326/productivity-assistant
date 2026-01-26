@@ -1,16 +1,17 @@
 :root {
-  --primary: hsl(350, 89%, 60%);
-  --primary-dark: #E11D48;
-  --accent: #FB7185;
-  --success: #10B981;
-  --warning: #F59E0B;
+  --primary: #8B5CF6;
+  --primary-dark: #7C3AED;
+  --accent: #C4B5FD;
+  --gradient: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%);
+  --bg: #F5F3FF !important;           
+  --surface: #FAFAF9 !important;
+  --text: #0F172A !important;         
+  --text-light: #64748B !important;   
+  --success: #22C55E;
+  --warning: #FBBF24;
   --danger: #EF4444;
-  --text: #0F172A;
-  --text-light: #64748B;
-  --bg: #F1F5F9;
-  --surface: #FFFFFF;
-  --gradient: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
 }
+
 
 * {
   margin: 0;
@@ -183,7 +184,8 @@
 }
 
 .app-mockup {
-  background: rgba(255, 255, 255, 0.95);
+  background: #FAFAF9;
+  border: 1px solid #E9D5FF;
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   overflow: hidden;
@@ -368,7 +370,7 @@
 
 .how-it-works {
   padding: 6rem 2rem;
-  background: var(--surface);
+  background: #FAFAF9;
 }
 
 .steps-grid {
@@ -382,6 +384,7 @@
   position: relative;
   padding: 2.5rem 2rem 2rem;
   border-radius: 16px;
+  border: 1px solid #E9D5FF;
   background: var(--bg);
   transition: transform 0.3s ease;
 }
@@ -491,7 +494,8 @@
 }
 
 .placeholder-image {
-  background: var(--surface);
+  background: #FAFAF9; 
+  border: 1px solid #E9D5FF; 
   border-radius: 16px;
   padding: 3rem 2rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -538,7 +542,7 @@
 
 .features-deep {
   padding: 6rem 2rem;
-  background: var(--surface);
+  background: #FAFAF9;
 }
 
 .features-list {
@@ -605,6 +609,7 @@
 
 .demo-card {
   background: var(--bg);
+  border: 1px solid #E9D5FF; 
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -631,7 +636,8 @@
 }
 
 .demo-output {
-  background: var(--surface);
+  background: #FAFAF9;
+  border: 1px solid #E9D5FF;
   padding: 1rem;
   border-radius: 8px;
   font-size: 0.95rem;
@@ -649,7 +655,7 @@
 }
 
 .result-item {
-  background: var(--surface);
+  background: #FAFAF9; 
   padding: 0.75rem 1rem;
   border-radius: 8px;
   border-left: 3px solid var(--primary);
@@ -695,11 +701,11 @@
 }
 
 .coming-soon-section {
-  background: rgba(236, 72, 153, 0.1);
+  background: rgba(196, 181, 253, 0.15);
   border-radius: 24px;
   padding: 4rem 2rem;
   text-align: center;
-  border: 2px solid rgba(236, 72, 153, 0.2);
+  border: 2px solid rgba(196, 181, 253, 0.3);
 }
 
 .coming-soon-badge {
@@ -734,7 +740,8 @@
 }
 
 .coming-feature {
-  background: var(--surface);
+  background:  #FAFAF9; 
+  border: 1px solid #E9D5FF;
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);

@@ -41,7 +41,7 @@ function DashboardPage() {
       const activeItems = allItems.filter(item => !item.completed);
       setItems(activeItems);
     } catch (error) {
-      setError('Failed to load items');
+      setError('Error: Unable to load tasks');
       console.error('Load error:', error);
     } finally {
       setLoading(false);
@@ -141,7 +141,7 @@ function DashboardPage() {
         </div>
 
         <section className="input-section">
-          <h2>✨ Add New Item</h2>
+          <h2> Add New Task</h2>
           <InputBox onSubmit={handleAddInput} />
         </section>
 

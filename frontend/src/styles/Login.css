@@ -1,7 +1,7 @@
 :root {
-  --primary: #6366F1;
-  --primary-dark: #4F46E5;
-  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --primary: #8B5CF6;
+  --primary-dark:#7C3AED;
+  --gradient: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%);
   --text: #0F172A;
   --text-light: #64748B;
   --border: #E2E8F0;
@@ -78,7 +78,8 @@
 /*LOGIN CARD*/
 
 .login-card {
-  background: var(--surface);
+  background: #FAFAF9;
+  border: 1px solid #E9D5FF;
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
@@ -154,12 +155,12 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  border-color:  #8B5CF6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
 .form-group input:disabled {
-  background: #F8FAFC;
+  background:  #F5F3FF; 
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -249,7 +250,7 @@
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow:0 4px 12px rgba(139, 92, 246, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -258,7 +259,7 @@
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
 
 .btn-primary:active:not(:disabled) {

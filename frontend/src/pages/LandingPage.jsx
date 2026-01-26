@@ -20,11 +20,6 @@ function LandingPage() {
       description: 'Instant task creation with optimistic UI - no waiting for responses',
     },
     {
-      icon: <Search size={40} />,
-      title: 'Smart Search',
-      description: 'Semantic vector search finds tasks by meaning, not just keywords',
-    },
-    {
       icon: <Calendar size={40} />,
       title: 'Auto-Sync',
       description: 'Automatically sync with calendar and extract tasks from emails',
@@ -34,21 +29,21 @@ function LandingPage() {
   const useCases = [
     {
       title: 'For Professionals',
-      description: 'Track meetings, deadlines, and project tasks with natural language input. Stay on top of your work schedule effortlessly.',
+      description: 'Track meetings, deadlines, and project tasks with natural language input. Manage work tasks efficiently.',
       example: '"Team standup tomorrow at 9am" → Reminder created automatically',
       imageUrl: professionalImg,
       imageType: 'professional'
     },
     {
       title: 'For Students',
-      description: 'Never miss an assignment or exam with AI-powered deadline tracking. Organize study sessions and project work seamlessly.',
+      description: 'Track assignments and exams effectively with AI-powered deadline tracking. Organize study sessions and project work seamlessly.',
       example: '"Math assignment due Friday" → High priority task with date',
       imageUrl: studentImg,
       imageType: 'student'
     },
     {
       title: 'For Personal Life',
-      description: 'Organize errands, appointments, and personal goals effortlessly. Keep your life balanced and stress-free.',
+      description: 'Manage personal tasks and goals efficiently. Keep your life balanced and stress-free.',
       example: '"Buy groceries this weekend" → Shopping task for Saturday',
       imageUrl: personalImg,
       imageType: 'personal'
@@ -67,7 +62,7 @@ function LandingPage() {
           {/* CENTERED APP NAME */}
           <div className="hero-title-section">
             <h1 className="hero-title-main">AuraPlan</h1>
-            <p className="hero-subtitle-main">Your AI-powered productivity companion</p>
+            <p className="hero-subtitle-main">AI-powered assistant for managing tasks and reminders</p>
           </div>
 
           {/* Hero Content - Split Layout */}
@@ -151,19 +146,19 @@ function LandingPage() {
           <div className="steps-grid">
             <div className="step-card">
               <div className="step-number">1</div>
-              <h3>Type Naturally</h3>
-              <p>Just write in plain English: "Call dentist tomorrow at 2pm" or "Buy milk this evening"</p>
+              <h3>Enter Tasks Naturally</h3>
+              <p>Enter tasks in natural language: 'Schedule dentist appointment tomorrow at 2 PM'</p>
             </div>
 
             <div className="step-card">
               <div className="step-number">2</div>
-              <h3>AI Understands</h3>
+              <h3>AI Parses Your Input</h3>
               <p>Our local LLM extracts the task, time, priority, and category automatically</p>
             </div>
 
             <div className="step-card">
               <div className="step-number">3</div>
-              <h3>Get Organized</h3>
+              <h3>Tasks Organized Automatically</h3>
               <p>Tasks appear in Today/Tomorrow/Upcoming views, perfectly organized</p>
             </div>
           </div>
@@ -252,7 +247,7 @@ function LandingPage() {
             <div className="feature-row">
               <div className="feature-content">
                 <h3><Sparkles size={24} /> Natural Language Processing</h3>
-                <p>Type like you speak. Our AI understands context, extracts dates, priorities, and categories from your natural language input.</p>
+                <p>Input tasks in natural language. Our AI understands context, extracts dates, priorities, and categories from your natural language input.</p>
                 <ul className="feature-points">
                   <li><CheckCircle size={18} /> Understands relative dates ("tomorrow", "next week")</li>
                   <li><CheckCircle size={18} /> Extracts priorities ("urgent", "important")</li>
@@ -271,33 +266,10 @@ function LandingPage() {
                 </div>
               </div>
             </div>
-
-            <div className="feature-row reverse">
-              <div className="feature-visual">
-                <div className="demo-card">
-                  <div className="demo-input">Search: "health tasks"</div>
-                  <div className="demo-results">
-                    <div className="result-item">🏃 Morning jog</div>
-                    <div className="result-item">🏥 Doctor appointment</div>
-                    <div className="result-item">💊 Buy vitamins</div>
-                  </div>
-                </div>
-              </div>
-              <div className="feature-content">
-                <h3><Search size={24} /> Semantic Search</h3>
-                <p>Find tasks by meaning, not just keywords. Vector database powered search understands relationships and context.</p>
-                <ul className="feature-points">
-                  <li><CheckCircle size={18} /> Search by concept, not exact words</li>
-                  <li><CheckCircle size={18} /> Finds related tasks automatically</li>
-                  <li><CheckCircle size={18} /> ChromaDB vector embeddings</li>
-                </ul>
-              </div>
-            </div>
-
             <div className="feature-row">
               <div className="feature-content">
                 <h3><Calendar size={24} /> Visual Day View</h3>
-                <p>See your entire day as a beautiful timeline visualization. Perfect for planning and reviewing your schedule.</p>
+                <p>View a comprehensive timeline of your daily tasks. Perfect for planning and reviewing your schedule.</p>
                 <ul className="feature-points">
                   <li><CheckCircle size={18} /> Color-coded by priority and type</li>
                   <li><CheckCircle size={18} /> Timeline view with time slots</li>
@@ -351,24 +323,29 @@ function LandingPage() {
           <h2>Ready to Transform Your Productivity?</h2>
           <p>Join the AI-powered productivity revolution. No credit card required.</p>
           <button className="btn-primary-large" onClick={() => navigate('/login')}>
-            Start Free Now <ArrowRight size={24} />
+            Start Free Trial<ArrowRight size={24} />
           </button>
-          <p className="cta-note">✨ Setup takes less than 2 minutes</p>
+          <p className="cta-note">Setup takes less than 2 minutes</p>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="landing-footer-new">
-        <div className="footer-content">
-          <div className="footer-brand">
-            <h3>✨ AuraPlan</h3>
-            <p>AI-powered productivity for everyone</p>
-          </div>
-          <div className="footer-info">
-            <p className="tech-stack">React • Flask • Ollama • ChromaDB • SQLite</p>
-          </div>
+    {/* Footer */}
+    <footer className="landing-footer-new">
+      <div className="footer-content">
+        <div className="footer-brand">
+          <h3>✨ AuraPlan</h3>
+          <p>AI-powered productivity assistant</p>
         </div>
-      </footer>
+
+        <div className="footer-info">
+          <p>
+            © 2026 AuraPlan. All rights reserved.
+          </p>
+          <p className="footer-links">
+            Privacy Policy • Terms of Service • Contact
+          </p>
+        </div>
+      </div>
+    </footer>
     </div>
   );
 }

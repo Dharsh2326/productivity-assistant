@@ -1,7 +1,3 @@
-"""
-Standalone script to fix ChromaDB database issues
-Run this from the project root: python fix_chromadb.py
-"""
 import os
 import shutil
 import sqlite3
