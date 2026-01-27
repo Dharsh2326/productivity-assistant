@@ -352,5 +352,5 @@ if __name__ == '__main__':
     print(f"LLM Model: {Config.OLLAMA_MODEL}")
     print(f"Static Files: {STATIC_DIR}")
     print("="*60 + "\n")
-    port = int(os.environ.get("PORT", 10000))  
-    app.run(debug=False, host='0.0.0.0', port=port)
+    
+    app.run(debug=True, port=5000, host='0.0.0.0')

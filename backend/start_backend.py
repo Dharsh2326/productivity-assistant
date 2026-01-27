@@ -4,8 +4,6 @@ import sqlite3
 import shutil
 from pathlib import Path
 
-from app import app
-
 # Add backend directory to path
 BACKEND_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BACKEND_DIR))
@@ -30,9 +28,6 @@ def check_ollama():
             print("  Ollama is running but returned unexpected status")
             return False
     except:
-        if os.environ.get("RENDER") or os.environ.get("RAILWAY_ENVIRONMENT"):
-            print(" Ollama not available in cloud — AI features disabled")
-            return True
         print(" Ollama is NOT running")
         print("   Please start Ollama first: ollama serve")
         print("   Or install from: https://ollama.ai")
@@ -202,9 +197,7 @@ def main():
     print("Starting Flask application on http://localhost:5000\n")
     
     from app import app
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
-
+    app.run(debug=True, port=5000, host='0.0.0.0')
     
     return True
 
