@@ -1,7 +1,7 @@
 :root {
-  --primary: #8B5CF6;
-  --primary-dark:#7C3AED;
-  --gradient: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%);
+  --primary: #6B7280!important;
+  --primary-dark: #4B5563 !important;
+  --gradient: linear-gradient(135deg, #9CA3AF 0%, #6B7280 50%, #4B5563 100%) !important;
   --text: #0F172A;
   --text-light: #64748B;
   --border: #E2E8F0;
@@ -21,51 +21,6 @@
   overflow: hidden;
 }
 
-/*ANIMATED BACKGROUND SHAPES*/
-
-.login-bg-shape {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  animation: floatShape 8s ease-in-out infinite;
-}
-
-.shape-1 {
-  width: 300px;
-  height: 300px;
-  top: 10%;
-  left: 5%;
-  animation-delay: 0s;
-}
-
-.shape-2 {
-  width: 200px;
-  height: 200px;
-  bottom: 15%;
-  right: 10%;
-  animation-delay: 2s;
-}
-
-.shape-3 {
-  width: 150px;
-  height: 150px;
-  top: 60%;
-  left: 15%;
-  animation-delay: 4s;
-}
-
-@keyframes floatShape {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translateY(-30px) scale(1.1);
-    opacity: 0.5;
-  }
-}
-
 /*LOGIN CONTAINER*/
 
 .login-container {
@@ -79,7 +34,7 @@
 
 .login-card {
   background: #FAFAF9;
-  border: 1px solid #E9D5FF;
+  border: 1px solid #D1D5DB;
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
@@ -103,7 +58,6 @@
   text-align: center;
   margin-bottom: 2.5rem;
 }
-
 
 .login-header h1 {
   font-size: 2rem;
@@ -155,12 +109,12 @@
 
 .form-group input:focus {
   outline: none;
-  border-color:  #8B5CF6;
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(107, 114, 128, 0.1);
 }
 
 .form-group input:disabled {
-  background:  #F5F3FF; 
+  background: #F3F4F6;
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -241,7 +195,7 @@
 /*BUTTONS*/
 
 .btn-primary {
-  background: var(--gradient);
+  background: var(--primary) !important;
   color: white;
   padding: 1rem 2rem;
   border-radius: 12px;
@@ -250,7 +204,7 @@
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow:0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3)!important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -259,7 +213,7 @@
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -293,6 +247,7 @@
     transform: rotate(360deg);
   }
 }
+
 /*BACK BUTTON */
 
 .back-btn {
@@ -341,25 +296,6 @@
 
   .social-login {
     flex-direction: column;
-  }
-
-  .login-bg-shape {
-    opacity: 0.5;
-  }
-
-  .shape-1 {
-    width: 200px;
-    height: 200px;
-  }
-
-  .shape-2 {
-    width: 150px;
-    height: 150px;
-  }
-
-  .shape-3 {
-    width: 100px;
-    height: 100px;
   }
 }
 

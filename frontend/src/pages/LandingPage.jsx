@@ -1,26 +1,23 @@
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Brain, Search, Sparkles, Zap, Mail, ArrowRight, CheckCircle, Clock } from 'lucide-react';
-import FeatureCard from '../components/FeatureCard';
+import { ArrowRight } from 'lucide-react';
 import '../styles/Landing.css';
 import personalImg from '../assets/images/personalImg.png';
 import professionalImg from '../assets/images/professionalImg.png';
 import studentImg from '../assets/images/StudentsImg.png';
+
 function LandingPage() {
   const navigate = useNavigate();
 
   const mainFeatures = [
     {
-      icon: <Brain size={40} />,
       title: 'AI-Powered',
       description: 'Natural language processing understands what you mean, when you mean it',
     },
     {
-      icon: <Zap size={40} />,
       title: 'Lightning Fast',
       description: 'Instant task creation with optimistic UI - no waiting for responses',
     },
     {
-      icon: <Calendar size={40} />,
       title: 'Auto-Sync',
       description: 'Automatically sync with calendar and extract tasks from emails',
     },
@@ -54,10 +51,6 @@ function LandingPage() {
     <div className="landing-page">
       {/* Hero Section */}
       <section className="hero-new">
-        <div className="floating-shape shape-1"></div>
-        <div className="floating-shape shape-2"></div>
-        <div className="floating-shape shape-3"></div>
-
         <div className="hero-container">
           {/* CENTERED APP NAME */}
           <div className="hero-title-section">
@@ -102,17 +95,14 @@ function LandingPage() {
                   </div>
                   <div className="mockup-tasks">
                     <div className="mockup-task high">
-                      <span className="task-icon">✅</span>
                       <span className="task-text">Team meeting at 3pm</span>
                       <span className="task-priority">HIGH</span>
                     </div>
                     <div className="mockup-task medium">
-                      <span className="task-icon">📅</span>
                       <span className="task-text">Review project proposal</span>
                       <span className="task-priority">MEDIUM</span>
                     </div>
                     <div className="mockup-task low">
-                      <span className="task-icon">📝</span>
                       <span className="task-text">Buy groceries</span>
                       <span className="task-priority">LOW</span>
                     </div>
@@ -126,7 +116,6 @@ function LandingPage() {
           <div className="features-grid-hero">
             {mainFeatures.map((feature, index) => (
               <div key={index} className="feature-card-hero">
-                <div className="feature-icon-hero">{feature.icon}</div>
                 <h3>{feature.title}</h3>
                 <p>{feature.description}</p>
               </div>
@@ -145,19 +134,16 @@ function LandingPage() {
 
           <div className="steps-grid">
             <div className="step-card">
-              <div className="step-number">1</div>
               <h3>Enter Tasks Naturally</h3>
               <p>Enter tasks in natural language: 'Schedule dentist appointment tomorrow at 2 PM'</p>
             </div>
 
             <div className="step-card">
-              <div className="step-number">2</div>
               <h3>AI Parses Your Input</h3>
               <p>Our local LLM extracts the task, time, priority, and category automatically</p>
             </div>
 
             <div className="step-card">
-              <div className="step-number">3</div>
               <h3>Tasks Organized Automatically</h3>
               <p>Tasks appear in Today/Tomorrow/Upcoming views, perfectly organized</p>
             </div>
@@ -183,59 +169,18 @@ function LandingPage() {
                 </div>
               </div>
               <div className="zigzag-image">
-                {/* CONDITIONAL: Show real image if provided, else placeholder */}
-                {useCase.imageUrl ? (
-                  <img 
-                    src={useCase.imageUrl} 
-                    alt={useCase.title}
-                    className="zigzag-real-image"
-                  />
-                ) : (
-                  <div className={`placeholder-image ${useCase.imageType}`}>
-                    <div className="placeholder-content">
-                      <div className="placeholder-icon">
-                        {useCase.imageType === 'professional' && '💼'}
-                        {useCase.imageType === 'student' && '🎓'}
-                        {useCase.imageType === 'personal' && '🏠'}
-                      </div>
-                      <div className="placeholder-text">
-                        {useCase.imageType === 'professional' && 'Professional Dashboard'}
-                        {useCase.imageType === 'student' && 'Student Planner'}
-                        {useCase.imageType === 'personal' && 'Personal Life'}
-                      </div>
-                      <div className="placeholder-items">
-                        {useCase.imageType === 'professional' && (
-                          <>
-                            <div className="placeholder-item">📊 Q1 Report</div>
-                            <div className="placeholder-item">👥 Client Meeting</div>
-                            <div className="placeholder-item">📧 Email Review</div>
-                          </>
-                        )}
-                        {useCase.imageType === 'student' && (
-                          <>
-                            <div className="placeholder-item">📚 Study Math</div>
-                            <div className="placeholder-item">✍️ Essay Draft</div>
-                            <div className="placeholder-item">🔬 Lab Report</div>
-                          </>
-                        )}
-                        {useCase.imageType === 'personal' && (
-                          <>
-                            <div className="placeholder-item">🛒 Groceries</div>
-                            <div className="placeholder-item">🏃 Gym Session</div>
-                            <div className="placeholder-item">👨‍👩‍👧 Family Time</div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <img 
+                  src={useCase.imageUrl} 
+                  alt={useCase.title}
+                  className="zigzag-real-image"
+                />
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Features Deep Dive - Updated */}
+      {/* Features Deep Dive */}
       <section className="features-deep">
         <div className="section-container">
           <div className="section-header">
@@ -246,12 +191,12 @@ function LandingPage() {
           <div className="features-list">
             <div className="feature-row">
               <div className="feature-content">
-                <h3><Sparkles size={24} /> Natural Language Processing</h3>
+                <h3>Natural Language Processing</h3>
                 <p>Input tasks in natural language. Our AI understands context, extracts dates, priorities, and categories from your natural language input.</p>
                 <ul className="feature-points">
-                  <li><CheckCircle size={18} /> Understands relative dates ("tomorrow", "next week")</li>
-                  <li><CheckCircle size={18} /> Extracts priorities ("urgent", "important")</li>
-                  <li><CheckCircle size={18} /> Categorizes automatically (task, note, reminder)</li>
+                  <li>Understands relative dates ("tomorrow", "next week")</li>
+                  <li>Extracts priorities ("urgent", "important")</li>
+                  <li>Categorizes automatically (task, note, reminder)</li>
                 </ul>
               </div>
               <div className="feature-visual">
@@ -266,14 +211,15 @@ function LandingPage() {
                 </div>
               </div>
             </div>
+
             <div className="feature-row">
               <div className="feature-content">
-                <h3><Calendar size={24} /> Visual Day View</h3>
+                <h3>Visual Day View</h3>
                 <p>View a comprehensive timeline of your daily tasks. Perfect for planning and reviewing your schedule.</p>
                 <ul className="feature-points">
-                  <li><CheckCircle size={18} /> Color-coded by priority and type</li>
-                  <li><CheckCircle size={18} /> Timeline view with time slots</li>
-                  <li><CheckCircle size={18} /> Clear visual organization</li>
+                  <li>Color-coded by priority and type</li>
+                  <li>Timeline view with time slots</li>
+                  <li>Clear visual organization</li>
                 </ul>
               </div>
               <div className="feature-visual">
@@ -292,23 +238,20 @@ function LandingPage() {
       <section className="coming-soon-full">
         <div className="section-container">
           <div className="coming-soon-section">
-            <div className="coming-soon-badge">🚀 COMING SOON</div>
+            <div className="coming-soon-badge">COMING SOON</div>
             <h2 className="coming-soon-title">Upcoming Features</h2>
             <p className="coming-soon-subtitle">We're constantly improving AuraPlan</p>
             
             <div className="coming-features-grid">
               <div className="coming-feature">
-                <Mail size={32} />
                 <h3>Gmail Integration</h3>
                 <p>Automatically extract tasks from emails and newsletters</p>
               </div>
               <div className="coming-feature">
-                <Calendar size={32} />
                 <h3>Google Calendar Sync</h3>
                 <p>Two-way sync with your Google Calendar events</p>
               </div>
               <div className="coming-feature">
-                <Clock size={32} />
                 <h3>Smart Reminders</h3>
                 <p>Push notifications and desktop alerts</p>
               </div>
@@ -321,31 +264,25 @@ function LandingPage() {
       <section className="final-cta">
         <div className="cta-container">
           <h2>Ready to Transform Your Productivity?</h2>
-          <p>Join the AI-powered productivity revolution. No credit card required.</p>
           <button className="btn-primary-large" onClick={() => navigate('/login')}>
-            Start Free Trial<ArrowRight size={24} />
+            Login <ArrowRight size={24} />
           </button>
-          <p className="cta-note">Setup takes less than 2 minutes</p>
         </div>
       </section>
-    {/* Footer */}
-    <footer className="landing-footer-new">
-      <div className="footer-content">
-        <div className="footer-brand">
-          <h3>✨ AuraPlan</h3>
-          <p>AI-powered productivity assistant</p>
-        </div>
 
-        <div className="footer-info">
-          <p>
-            © 2026 AuraPlan. All rights reserved.
-          </p>
-          <p className="footer-links">
-            Privacy Policy • Terms of Service • Contact
-          </p>
+      {/* Footer */}
+      <footer className="landing-footer-new">
+        <div className="footer-content">
+          <div className="footer-brand">
+            <h3>AuraPlan</h3>
+            <p>AI-powered productivity assistant</p>
+          </div>
+
+          <div className="footer-info">
+            <p>© 2026 AuraPlan. All rights reserved.</p>
+          </div>
         </div>
-      </div>
-    </footer>
+      </footer>
     </div>
   );
 }

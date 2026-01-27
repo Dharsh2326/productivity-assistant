@@ -65,7 +65,7 @@ function VisualDayPage() {
   return (
     <div className="visual-day-page">
       <header className="visual-day-header">
-        <h1>📅 Visual Day View</h1>
+        <h1> Visual Day View</h1>
         <p>Your tasks visualized beautifully</p>
       </header>
 
@@ -89,7 +89,7 @@ function VisualDayPage() {
             onClick={handleGenerate}
             disabled={loading}
           >
-            {loading ? '⏳ Generating...' : 'Generate Daily Timeline'}
+            {loading ? ' Generating...' : 'Generate Daily Timeline'}
           </button>
         </div>
 
@@ -108,7 +108,7 @@ function VisualDayPage() {
         {showFallback && todayItems.length > 0 && (
           <div className="fallback-container">
             <div className="fallback-header">
-              <h2>📋 Today's Tasks</h2>
+              <h2> Today's Tasks</h2>
               <p>{todayItems.length} tasks scheduled</p>
             </div>
             <div className="fallback-items">
@@ -126,7 +126,6 @@ function VisualDayPage() {
 
         {!imageUrl && !loading && !showFallback && (
           <div className="empty-state">
-            <div className="empty-icon">🎨</div>
             <h3>Generate Your Day View</h3>
             <p>Click "Generate" to create a visual timeline of your day</p>
           </div>
@@ -134,7 +133,6 @@ function VisualDayPage() {
 
         {showFallback && todayItems.length === 0 && (
           <div className="empty-state">
-            <div className="empty-icon">📭</div>
             <h3>No Tasks Today</h3>
             <p>Add some tasks to see them visualized here</p>
           </div>

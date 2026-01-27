@@ -1,26 +1,26 @@
 .visual-day-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%);
+  background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 50%, #4B5563 100%);
   padding: 2rem;
 }
 
 /* ===== BUTTON STYLES ===== */
 .btn-primary {
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  background: linear-gradient(135deg, #6B7280, #4B5563);
   color: white;
   padding: 0.875rem 2rem;
   border-radius: 12px;
   font-weight: 700;
   font-size: 1rem;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); 
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
   border: none;
   cursor: pointer;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
 .btn-primary:disabled {
@@ -92,8 +92,8 @@
 }
 
 .controls-card {
-  background: #FAFAF9; 
-  border: 1px solid #E9D5FF; 
+  background: #FAFAF9;
+  border: 1px solid #D1D5DB;
   padding: 2.5rem;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
@@ -124,8 +124,8 @@
 
 .date-input:focus {
   outline: none;
-  border-color: #8B5CF6;
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+  border-color: #6B7280;
+  box-shadow: 0 0 0 4px rgba(107, 114, 128, 0.1);
 }
 
 .generate-btn {
@@ -136,18 +136,18 @@
 
 .info-box {
   margin-top: 1.5rem;
-  background: #EDE9FE; 
-  border: 2px solid #8B5CF6;
+  background: #F3F4F6;
+  border: 2px solid #6B7280;
   padding: 1rem;
   border-radius: 12px;
   text-align: center;
-  color: #7C3AED;
+  color: #4B5563;
   font-weight: 600;
 }
 
 .image-container {
-  background: #FAFAF9; 
-  border: 1px solid #E9D5FF;
+  background: #FAFAF9;
+  border: 1px solid #D1D5DB;
   padding: 2rem;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
@@ -173,7 +173,7 @@
 
 .empty-state {
   background: #FAFAF9;
-  border: 1px solid #E9D5FF; 
+  border: 1px solid #D1D5DB;
   padding: 4rem 2rem;
   border-radius: 20px;
   text-align: center;
@@ -194,8 +194,8 @@
 
 /* Fallback container for card view */
 .fallback-container {
-  background: #FAFAF9; 
-  border: 1px solid #E9D5FF;
+  background: #FAFAF9;
+  border: 1px solid #D1D5DB;
   padding: 2rem;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);

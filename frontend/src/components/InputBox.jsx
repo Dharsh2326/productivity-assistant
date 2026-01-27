@@ -46,7 +46,7 @@ function InputBox({ onSubmit }) {
           disabled={loading || !input.trim()}
           className="submit-btn"
         >
-          {loading ? '⏳ Processing...' : '✨ Add Item'}
+          {loading ? ' Processing...' : ' Add Item'}
         </button>
       </form>
     </div>

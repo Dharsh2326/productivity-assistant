@@ -13,7 +13,7 @@ html, body, #root {
 }
 
 :root {
-  --pa-primary: #667eea;
+  --pa-primary: #b8bccc;
   --pa-primary-dark: #5568d3;
   --pa-secondary: #764ba2;
   --pa-success: #10b981;
@@ -228,14 +228,14 @@ html, body, #root {
 
 .input-textarea:focus {
   outline: none;
-  border-color: #8B5CF6;
+  border-color: #bdb3d4;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .submit-btn {
   align-self: flex-end;
   padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  background: linear-gradient(135deg, #a89bc5, #67636f);
   color: white;
   border: none;
   border-radius: var(--pa-radius);
@@ -258,66 +258,7 @@ html, body, #root {
 }
 
 /* Search Bar Styles */
-.search-input-group {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.search-input {
-  flex: 1;
-  min-width: 250px;
-  padding: 0.875rem 1rem;
-  border: 2px solid var(--pa-border);
-  border-radius: var(--pa-radius);
-  font-size: 1rem;
-  transition: var(--pa-transition);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--pa-secondary);
-  box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
-}
-
-.search-btn,
-.clear-btn {
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: var(--pa-radius);
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--pa-transition);
-  white-space: nowrap;
-}
-
-.search-btn {
-  background: var(--pa-secondary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
-}
-
-.clear-btn {
-  background: var(--pa-danger);
-  color: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.search-btn:hover:not(:disabled),
-.clear-btn:hover {
-  transform: translateY(-2px);
-}
-
-.search-mode-indicator {
-  width: 100%;
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #dbeafe;
-  border-left: 4px solid var(--pa-info);
-  border-radius: 8px;
-  color: #1e40af;
-  font-weight: 500;
-}
+/* Search bar CSS is now in Dashboard.css */
 
 /* Filter Tabs */
 .filter-tabs {

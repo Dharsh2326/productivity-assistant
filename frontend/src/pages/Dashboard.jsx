@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import InputBox from '../components/InputBox';
 import ItemList from '../components/ItemList';
+import SearchBar from '../components/SearchBar';
 import { 
   getItemsGrouped, 
   syncExternalData, 
   parseInput, 
   deleteItem, 
-  updateItem
+  updateItem,
+  searchItems
 } from '../services/api';
 import '../styles/Dashboard.css';
 
@@ -19,10 +21,35 @@ function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchMode, setSearchMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    if (!searchMode) {
+      loadItems();
+    }
+  }, [activeView, searchMode]);
+
+  const handleSearch = async (query) => {
+    setLoading(true);
+    setError(null);
+    setSearchQuery(query);
+    try {
+      const response = await searchItems(query);
+      setItems(response.items || []);
+      setSearchMode(true);
+    } catch (error) {
+      setError(error.error || 'Search failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchMode(false);
+    setSearchQuery('');
     loadItems();
-  }, [activeView]);
+  };
 
   const loadItems = async () => {
     setLoading(true);
@@ -52,10 +79,10 @@ function DashboardPage() {
     setSyncLoading(true);
     try {
       const result = await syncExternalData();
-      alert(`✅ Synced ${result.synced.calendar} calendar events + ${result.synced.email} emails`);
+      alert(` Synced ${result.synced.calendar} calendar events + ${result.synced.email} emails`);
       loadItems();
     } catch (error) {
-      alert('❌ Sync failed. Make sure backend is running.');
+      alert(' Sync failed. Make sure backend is running.');
     } finally {
       setSyncLoading(false);
     }
@@ -122,7 +149,7 @@ function DashboardPage() {
       <main className="dashboard-main">
         {error && (
           <div className="error-banner">
-            <span>⚠️ {error}</span>
+            <span> {error}</span>
             <button onClick={() => setError(null)}>✖</button>
           </div>
         )}
@@ -130,13 +157,21 @@ function DashboardPage() {
         <div className="dashboard-header">
           <div>
             <h1>
-              {activeView === 'today' ? '📅 Today' : 
-               activeView === 'tomorrow' ? '🌅 Tomorrow' : 
-               '📋 Upcoming'}
+              {activeView === 'today' ? ' Today' : 
+               activeView === 'tomorrow' ? ' Tomorrow' : 
+               ' Upcoming'}
             </h1>
             <p className="view-subtitle">
               {items.length} active {items.length === 1 ? 'item' : 'items'}
             </p>
+          </div>
+          <div className="header-search">
+            <SearchBar 
+              onSearch={handleSearch} 
+              onClear={handleClearSearch}
+              isSearchMode={searchMode}
+              query={searchQuery}
+            />
           </div>
         </div>
 

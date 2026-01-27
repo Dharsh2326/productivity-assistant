@@ -16,9 +16,16 @@ class VectorStore:
     def _initialize_client(self):
         """Initialize ChromaDB client with error handling for schema issues"""
         try:
+            # Disable telemetry to avoid warnings
+            import os
+            os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+            
             self.client = chromadb.PersistentClient(
                 path=Config.CHROMA_PATH,
-                settings=Settings(anonymized_telemetry=False)
+                settings=Settings(
+                    anonymized_telemetry=False,
+                    allow_reset=True
+                )
             )
             self.collection = self.client.get_or_create_collection(
                 name="productivity_items",
@@ -27,7 +34,7 @@ class VectorStore:
         except Exception as e:
             error_msg = str(e).lower()
             if "no such column" in error_msg or "operationalerror" in error_msg:
-                print(f"  ChromaDB schema mismatch detected. Resetting ChromaDB database...")
+                print(f"⚠️  ChromaDB schema mismatch detected. Resetting ChromaDB database...")
                 self._reset_chromadb()
                 time.sleep(0.5)
                 self.client = chromadb.PersistentClient(
@@ -38,7 +45,7 @@ class VectorStore:
                     name="productivity_items",
                     metadata={"hnsw:space": "cosine"}
                 )
-                print(" ChromaDB database reset and reinitialized successfully")
+                print("✅ ChromaDB database reset and reinitialized successfully")
             else:
                 raise e
     
@@ -58,16 +65,16 @@ class VectorStore:
         if os.path.exists(sqlite_file):
             try:
                 os.remove(sqlite_file)
-                print(f" Deleted ChromaDB SQLite file")
+                print(f"✅ Deleted ChromaDB SQLite file")
             except PermissionError:
                 try:
                     backup_name = sqlite_file + '.old.' + str(int(time.time()))
                     os.rename(sqlite_file, backup_name)
-                    print(f" Renamed old SQLite file to {os.path.basename(backup_name)}")
+                    print(f"✅ Renamed old SQLite file to {os.path.basename(backup_name)}")
                 except Exception as e2:
-                    print(f"  Could not rename file: {e2}")
+                    print(f"⚠️  Could not rename file: {e2}")
             except Exception as e:
-                print(f"  Error deleting SQLite file: {e}")
+                print(f"⚠️  Error deleting SQLite file: {e}")
         
         if os.path.exists(chroma_path):
             try:
@@ -76,11 +83,11 @@ class VectorStore:
                     if os.path.isdir(item_path):
                         try:
                             shutil.rmtree(item_path, onerror=self._handle_remove_readonly)
-                            print(f" Deleted ChromaDB subdirectory: {item}")
+                            print(f"✅ Deleted ChromaDB subdirectory: {item}")
                         except Exception as e:
-                            print(f"  Could not delete subdirectory {item}: {e}")
+                            print(f"⚠️  Could not delete subdirectory {item}: {e}")
             except Exception as e:
-                print(f"  Error cleaning ChromaDB directory: {e}")
+                print(f"⚠️  Error cleaning ChromaDB directory: {e}")
     
     def _handle_remove_readonly(self, func, path, exc):
         """Handle readonly files on Windows"""

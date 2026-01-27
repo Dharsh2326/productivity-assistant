@@ -1,8 +1,8 @@
 import json
 import requests
 from typing import Dict
-from config import Config  # Changed from ..config
-from llm_extraction.prompts import get_system_prompt, get_user_prompt, get_email_extraction_prompt  # Changed
+from config import Config
+from llm_extraction.prompts import get_system_prompt, get_user_prompt, get_email_extraction_prompt
 
 class LLMService:
     def __init__(self):
@@ -23,11 +23,13 @@ class LLMService:
                     "format": "json",
                     "options": {
                         "temperature": 0.1,
-                        "num_predict": 200,  # Reduced for speed
-                        "num_ctx": 1024  # Reduced for speed
+                        "num_predict": 100,  # REDUCED: Faster responses
+                        "num_ctx": 512,      # REDUCED: Less context to process
+                        "top_p": 0.9,
+                        "top_k": 40
                     }
                 },
-                timeout=15
+                timeout=45  # INCREASED: Give more time (was 15, now 45 seconds)
             )
             
             if response.status_code != 200:
@@ -74,7 +76,7 @@ class LLMService:
             return {
                 "success": False,
                 "error": "Ollama request timeout",
-                "details": "Request took too long"
+                "details": "Request took too long (>45s). Try a simpler query or use a faster model."
             }
         except json.JSONDecodeError as e:
             return {
@@ -105,9 +107,13 @@ class LLMService:
                     "prompt": prompt,
                     "stream": False,
                     "format": "json",
-                    "options": {"temperature": 0.1, "num_predict": 200}
+                    "options": {
+                        "temperature": 0.1, 
+                        "num_predict": 100,
+                        "num_ctx": 512
+                    }
                 },
-                timeout=20
+                timeout=30
             )
             
             if response.status_code == 200:

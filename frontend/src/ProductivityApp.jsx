@@ -34,7 +34,7 @@ function ProductivityApp() {
       loadItems();
     } catch (error) {
       setBackendStatus('disconnected');
-      setError('⚠️ Backend offline. Start Flask: python -m backend.app');
+      setError(' Backend offline. Start Flask: python -m backend.app');
     }
   };
 
@@ -114,14 +114,14 @@ function ProductivityApp() {
       {/* Header */}
       <header className="pa-header">
         <div className="pa-header-content">
-          <h1 className="pa-title">🚀 Productivity Assistant</h1>
+          <h1 className="pa-title"> Productivity Assistant</h1>
           <p className="pa-tagline">AI-powered task management with natural language</p>
           <div className={`pa-status ${backendStatus}`}>
             <span className="pa-status-dot"></span>
             <span className="pa-status-text">
               {backendStatus === 'connected' ? '✓ Backend Connected (Ollama)' : 
                backendStatus === 'disconnected' ? '✗ Backend Offline' : 
-               '⏳ Checking...'}
+               ' Checking...'}
             </span>
           </div>
         </div>
@@ -139,13 +139,13 @@ function ProductivityApp() {
 
         {/* Input Section */}
         <section className="pa-section">
-          <h2 className="pa-section-title">✨ Add New Item</h2>
+          <h2 className="pa-section-title"> Add New Item</h2>
           <InputBox onSubmit={handleAddInput} />
         </section>
 
         {/* Search Section */}
         <section className="pa-section">
-          <h2 className="pa-section-title">🔍 Semantic Search</h2>
+          <h2 className="pa-section-title"> Semantic Search</h2>
           <SearchBar 
             onSearch={handleSearch} 
             onClear={handleClearSearch}
@@ -157,7 +157,7 @@ function ProductivityApp() {
         {/* Items Section */}
         <section className="pa-section">
           <div className="pa-section-header">
-            <h2 className="pa-section-title">📋 Your Items</h2>
+            <h2 className="pa-section-title"> Your Items</h2>
             <span className="pa-item-count">{items.length} {items.length === 1 ? 'item' : 'items'}</span>
           </div>
           
@@ -176,8 +176,7 @@ function ProductivityApp() {
 
       {/* Footer */}
       <footer className="pa-footer">
-        <p>Built with ❤️ using React + Vite + Flask + Ollama</p>
-        <p className="pa-footer-small">ClaySys Technologies AI/ML Hackathon Project</p>
+      <p>© 2026 AuraPlan. All rights reserved.</p>
       </footer>
     </div>
   );

@@ -26,7 +26,7 @@ function SearchBar({ onSearch, onClear, isSearchMode, query }) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="🔍 Semantic search: 'work tasks' or 'health reminders' or 'shopping'"
+            placeholder="Semantic search: 'work tasks' or 'health reminders' or 'shopping'"
             className="search-input"
           />
           <button 
@@ -34,7 +34,7 @@ function SearchBar({ onSearch, onClear, isSearchMode, query }) {
             disabled={!searchQuery.trim()}
             className="search-btn"
           >
-            🔍 Search
+             Search
           </button>
           {isSearchMode && (
             <button 
@@ -42,14 +42,14 @@ function SearchBar({ onSearch, onClear, isSearchMode, query }) {
               onClick={handleClear}
               className="clear-btn"
             >
-              ✖️ Clear
+               Clear
             </button>
           )}
         </div>
       </form>
       {isSearchMode && searchQuery && (
         <p className="search-mode-indicator">
-          🎯 Showing search results for: "<strong>{searchQuery}</strong>"
+           Showing search results for: "<strong>{searchQuery}</strong>"
         </p>
       )}
     </div>

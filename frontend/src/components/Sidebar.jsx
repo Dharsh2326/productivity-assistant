@@ -1,4 +1,4 @@
-import { Calendar, Clock, List, Image, RefreshCw, LogOut,CheckCircle } from 'lucide-react';
+import { Calendar, Clock, List } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function Sidebar({ activeView, onViewChange, onSync, syncLoading, onLogout }) {
@@ -28,7 +28,7 @@ function Sidebar({ activeView, onViewChange, onSync, syncLoading, onLogout }) {
                 onViewChange(view.id);
               }}
             >
-              <Icon size={20} />
+              
               <span>{view.label}</span>
             </button>
           );
@@ -44,24 +44,20 @@ function Sidebar({ activeView, onViewChange, onSync, syncLoading, onLogout }) {
           disabled={syncLoading}
           title="Sync calendar and email (Feature in development)"
         >
-          <RefreshCw size={18} className={syncLoading ? 'spinning' : ''} />
           {syncLoading ? 'Syncing...' : 'Sync Data'}
         </button>
         <p className="sync-note">Calendar & Email sync coming soon!</p>
       </div>
       <div className="sidebar-footer">
          <button className="completed-btn" onClick={() => navigate('/completed')}>
-              <CheckCircle size={18} />
               Completed Tasks
         </button>
 
         <button className="visual-day-btn" onClick={() => navigate('/day-view')}>
-          <Image size={18} />
           Visual Day View
         </button>
 
         <button className="logout-btn" onClick={onLogout}>
-          <LogOut size={18} />
           Logout
         </button>
       </div>

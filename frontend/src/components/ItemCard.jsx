@@ -87,7 +87,7 @@ function ItemCard({ item, onDelete, onToggle }) {
           onClick={() => onDelete(item.id)} 
           className="delete-btn"
         >
-          🗑️ Delete
+           Delete
         </button>
       </div>
     </div>

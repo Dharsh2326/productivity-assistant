@@ -30,11 +30,6 @@ function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* Animated Background Elements */}
-      <div className="login-bg-shape shape-1"></div>
-      <div className="login-bg-shape shape-2"></div>
-      <div className="login-bg-shape shape-3"></div>
-
       <div className="login-container">
         {/* Login Card */}
         <div className="login-card">
