@@ -353,8 +353,4 @@ if __name__ == '__main__':
     print(f"Static Files: {STATIC_DIR}")
     print("="*60 + "\n")
     
-    app.run(
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 5000)),
-        debug=Config.FLASK_DEBUG
-    )
+    app.run(debug=True, port=5000, host='0.0.0.0')

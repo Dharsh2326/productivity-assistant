@@ -2,7 +2,6 @@ import json
 import requests
 from typing import Dict
 from config import Config
-from config import IS_PRODUCTION
 from llm_extraction.prompts import get_system_prompt, get_user_prompt, get_email_extraction_prompt
 
 class LLMService:
@@ -10,25 +9,8 @@ class LLMService:
         self.base_url = Config.OLLAMA_BASE_URL
         self.model = Config.OLLAMA_MODEL
     
-    def _fallback_parse(self, user_input: str) -> dict:
-            return {
-                "success": True,
-                "data": {
-                    "items": [
-                        {
-                            "title": user_input,
-                            "type": "task",
-                            "date": None,
-                            "priority": "medium"
-                        }
-                    ]
-                }
-            }
-
     def parse_natural_language(self, user_input: str) -> dict:
         """Send natural language input to Ollama and get structured JSON back"""
-        if IS_PRODUCTION:
-            return self._fallback_parse(user_input)
         try:
             full_prompt = f"{get_system_prompt()}\n\n{get_user_prompt(user_input)}"
             
@@ -41,8 +23,8 @@ class LLMService:
                     "format": "json",
                     "options": {
                         "temperature": 0.1,
-                        "num_predict": 100,  # REDUCED: Faster responses
-                        "num_ctx": 512,      # REDUCED: Less context to process
+                        "num_predict": 200,  # INCREASED: Was 100, now 200 for complete JSON
+                        "num_ctx": 1024,     # INCREASED: Was 512, now 1024 for better understanding
                         "top_p": 0.9,
                         "top_k": 40
                     }

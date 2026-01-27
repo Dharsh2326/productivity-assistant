@@ -11,9 +11,6 @@ class VectorStore:
     def __init__(self):
         self.client = None
         self.collection = None
-        if not Config.USE_VECTOR_STORE:
-            print(" Vector store disabled (production mode)")
-            return
         self._initialize_client()
     
     def _initialize_client(self):

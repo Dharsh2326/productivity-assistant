@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 load_dotenv()
-ENV = os.getenv("ENV", "local")  # local | production
-IS_PRODUCTION = ENV == "production"
 
 class Config:
     # Get base directory (where config.py is located)
@@ -19,29 +17,22 @@ class Config:
     CHROMA_PATH = os.getenv('CHROMA_PATH', str(BASE_DIR / 'data' / 'chroma'))
     
     # Flask Configuration
-    FLASK_ENV = "production" if IS_PRODUCTION else "development"
-
-    FLASK_DEBUG = not IS_PRODUCTION
-
+    FLASK_ENV = os.getenv('FLASK_ENV', 'development')
+    FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'true').lower() == 'true'
+    
     # Feature Flags
-    USE_MOCK_DATA = not IS_PRODUCTION
-    USE_VECTOR_STORE = not IS_PRODUCTION
-
+    USE_MOCK_DATA = os.getenv('USE_MOCK_DATA', 'true').lower() == 'true'
     
     # Ensure all required directories exist
     @classmethod
     def init_directories(cls):
-        """Create required directories based on environment"""
+        """Create all required directories"""
         directories = [
             Path(cls.DATABASE_PATH).parent,  # data/
-            cls.BASE_DIR / 'static' / 'visualizations'
+            Path(cls.CHROMA_PATH),  # data/chroma/
+            cls.BASE_DIR / 'static' / 'visualizations',  # static/visualizations/
+            cls.BASE_DIR / 'ingestion' / 'mock_data'  # ingestion/mock_data/
         ]
-
-        if not IS_PRODUCTION:
-            directories.extend([
-                Path(cls.CHROMA_PATH),
-                cls.BASE_DIR / 'ingestion' / 'mock_data'
-            ])
         
         for directory in directories:
             directory.mkdir(parents=True, exist_ok=True)
@@ -53,13 +44,11 @@ class Config:
         errors = []
         
         # Check Ollama configuration
-        if not IS_PRODUCTION:
-            if not cls.OLLAMA_BASE_URL:
-                errors.append("OLLAMA_BASE_URL is not set")
-
-            if not cls.OLLAMA_MODEL:
-                errors.append("OLLAMA_MODEL is not set")
-
+        if not cls.OLLAMA_BASE_URL:
+            errors.append("OLLAMA_BASE_URL is not set")
+        
+        if not cls.OLLAMA_MODEL:
+            errors.append("OLLAMA_MODEL is not set")
         
         # Check if mock data files exist when using mock mode
         if cls.USE_MOCK_DATA:
@@ -97,4 +86,4 @@ class Config:
 
 
 # Initialize directories on import
-Config.init_directories()
+Config.init_directories() 
