@@ -4,7 +4,7 @@ import sqlite3
 import shutil
 from pathlib import Path
 
-from backend import app
+from app import app
 
 # Add backend directory to path
 BACKEND_DIR = Path(__file__).resolve().parent
