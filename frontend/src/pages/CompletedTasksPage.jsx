@@ -46,7 +46,7 @@ function CompletedTasksPage() {
 
       <main className="dashboard-main">
         <div className="dashboard-header">
-          <h1>✅ Completed Tasks</h1>
+          <h1> Completed Tasks</h1>
           <p className="view-subtitle">
             {items.length} completed {items.length === 1 ? 'task' : 'tasks'}
           </p>

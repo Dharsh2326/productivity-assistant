@@ -21,18 +21,18 @@ function ItemCard({ item, onDelete, onToggle }) {
 
   const getTypeIcon = (type) => {
     switch(type) {
-      case 'task': return '✅';
-      case 'note': return '📝';
-      case 'reminder': return '⏰';
+      case 'task': return '';
+      case 'note': return '';
+      case 'reminder': return '';
       default: return '📌';
     }
   };
 
   const getPriorityColor = (priority) => {
     switch(priority) {
-      case 'high': return '#ff4757';
-      case 'medium': return '#ffa502';
-      case 'low': return '#1e90ff';
+      case 'high': return '#fb5967';
+      case 'medium': return '#e6a428';
+      case 'low': return '#448fda';
       default: return '#95a5a6';
     }
   };
