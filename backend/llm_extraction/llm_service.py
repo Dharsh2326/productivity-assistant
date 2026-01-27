@@ -10,8 +10,25 @@ class LLMService:
         self.base_url = Config.OLLAMA_BASE_URL
         self.model = Config.OLLAMA_MODEL
     
+    def _fallback_parse(self, user_input: str) -> dict:
+            return {
+                "success": True,
+                "data": {
+                    "items": [
+                        {
+                            "title": user_input,
+                            "type": "task",
+                            "date": None,
+                            "priority": "medium"
+                        }
+                    ]
+                }
+            }
+
     def parse_natural_language(self, user_input: str) -> dict:
         """Send natural language input to Ollama and get structured JSON back"""
+        if IS_PRODUCTION:
+            return self._fallback_parse(user_input)
         try:
             full_prompt = f"{get_system_prompt()}\n\n{get_user_prompt(user_input)}"
             
