@@ -2,6 +2,7 @@ import json
 import requests
 from typing import Dict
 from config import Config
+from config import IS_PRODUCTION
 from llm_extraction.prompts import get_system_prompt, get_user_prompt, get_email_extraction_prompt
 
 class LLMService:
