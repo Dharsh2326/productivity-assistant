@@ -34,18 +34,21 @@ class VectorStore:
         except Exception as e:
             error_msg = str(e).lower()
             if "no such column" in error_msg or "operationalerror" in error_msg:
-                print(f"⚠️  ChromaDB schema mismatch detected. Resetting ChromaDB database...")
+                print("WARNING: ChromaDB schema mismatch detected. Resetting ChromaDB database...")
                 self._reset_chromadb()
                 time.sleep(0.5)
                 self.client = chromadb.PersistentClient(
                     path=Config.CHROMA_PATH,
-                    settings=Settings(anonymized_telemetry=False)
+                    settings=Settings(
+                        anonymized_telemetry=False,
+                        allow_reset=True
+                    )
                 )
                 self.collection = self.client.get_or_create_collection(
                     name="productivity_items",
                     metadata={"hnsw:space": "cosine"}
                 )
-                print("✅ ChromaDB database reset and reinitialized successfully")
+                print("SUCCESS: ChromaDB database reset and reinitialized successfully")
             else:
                 raise e
     
@@ -65,16 +68,16 @@ class VectorStore:
         if os.path.exists(sqlite_file):
             try:
                 os.remove(sqlite_file)
-                print(f"✅ Deleted ChromaDB SQLite file")
+                print("SUCCESS: Deleted ChromaDB SQLite file")
             except PermissionError:
                 try:
                     backup_name = sqlite_file + '.old.' + str(int(time.time()))
                     os.rename(sqlite_file, backup_name)
-                    print(f"✅ Renamed old SQLite file to {os.path.basename(backup_name)}")
+                    print(f"SUCCESS: Renamed old SQLite file to {os.path.basename(backup_name)}")
                 except Exception as e2:
-                    print(f"⚠️  Could not rename file: {e2}")
+                    print(f"WARNING: Could not rename file: {e2}")
             except Exception as e:
-                print(f"⚠️  Error deleting SQLite file: {e}")
+                print(f"WARNING: Error deleting SQLite file: {e}")
         
         if os.path.exists(chroma_path):
             try:
@@ -83,11 +86,11 @@ class VectorStore:
                     if os.path.isdir(item_path):
                         try:
                             shutil.rmtree(item_path, onerror=self._handle_remove_readonly)
-                            print(f"✅ Deleted ChromaDB subdirectory: {item}")
+                            print(f"SUCCESS: Deleted ChromaDB subdirectory: {item}")
                         except Exception as e:
-                            print(f"⚠️  Could not delete subdirectory {item}: {e}")
+                            print(f"WARNING: Could not delete subdirectory {item}: {e}")
             except Exception as e:
-                print(f"⚠️  Error cleaning ChromaDB directory: {e}")
+                print(f"WARNING: Error cleaning ChromaDB directory: {e}")
     
     def _handle_remove_readonly(self, func, path, exc):
         """Handle readonly files on Windows"""
@@ -96,7 +99,7 @@ class VectorStore:
         func(path)
     
     def add_item(self, item_id: int, text: str, metadata: Dict):
-        """Add an item to the vector store"""
+        """Add or update an item in the vector store"""
         try:
             if not self.collection:
                 print("Warning: Vector store collection not initialized, skipping vector add")
@@ -109,25 +112,33 @@ class VectorStore:
             for key, value in metadata.items():
                 if value is None:
                     clean_metadata[key] = ""
+                elif isinstance(value, bool):
+                    clean_metadata[key] = value
+                elif isinstance(value, (int, float)):
+                    clean_metadata[key] = value
                 elif isinstance(value, (list, dict)):
                     clean_metadata[key] = str(value)
                 else:
                     clean_metadata[key] = str(value)
             
-            self.collection.add(
+            self.collection.upsert(
                 ids=[str(item_id)],
                 documents=[text],
                 metadatas=[clean_metadata]
             )
         except Exception as e:
-            print(f"Warning: Failed to add item to vector store: {e}")
+            print(f"Warning: Failed to add/update item in vector store: {e}")
     
-    def search(self, query: str, n_results: int = 10) -> List[Dict]:
+    def search(self, query: str, n_results: int = 10, where: Dict = None) -> List[Dict]:
         """Semantic search for items"""
-        results = self.collection.query(
-            query_texts=[query],
-            n_results=n_results
-        )
+        query_params = {
+            "query_texts": [query],
+            "n_results": n_results
+        }
+        if where:
+            query_params["where"] = where
+            
+        results = self.collection.query(**query_params)
         
         if not results['ids'] or not results['ids'][0]:
             return []

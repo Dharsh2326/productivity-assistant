@@ -23,7 +23,7 @@ db = Database(Config.DATABASE_PATH)
 vector_store = VectorStore()
 llm_service = LLMService()
 processor = IntentProcessor(db, vector_store)
-sync_orchestrator = SyncOrchestrator(db, llm_service, use_mock=Config.USE_MOCK_DATA)
+sync_orchestrator = SyncOrchestrator(db, llm_service, vector_store=vector_store, use_mock=Config.USE_MOCK_DATA)
 visualizer = DayViewGenerator(output_dir=str(STATIC_DIR))
 
 @app.route('/health', methods=['GET'])
@@ -166,6 +166,23 @@ def update_item(item_id):
         
         updated_item = db.get_item_by_id(item_id)
         
+        # Sync with Chroma vector store
+        if updated_item:
+            try:
+                title = updated_item.get('title', '') or ''
+                description = updated_item.get('description', '') or ''
+                tags = updated_item.get('tags', '') or ''
+                search_text = f"{title} {description} {tags}".strip()
+                metadata = {
+                    'type': updated_item.get('type', 'task'),
+                    'priority': updated_item.get('priority', 'medium'),
+                    'tags': tags,
+                    'completed': bool(updated_item.get('completed', False))
+                }
+                vector_store.add_item(item_id, search_text, metadata)
+            except Exception as vec_error:
+                print(f"Warning: Failed to update vector store during PUT: {vec_error}")
+        
         return jsonify({
             "success": True,
             "item": updated_item
@@ -196,20 +213,41 @@ def delete_item(item_id):
 def search():
     """Semantic search"""
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         query = data.get('query', '')
         
         if not query:
             return jsonify({"success": False, "error": "No query provided"}), 400
         
-        results = vector_store.search(query, n_results=10)
+        # Support metadata filtering
+        where_filter = data.get('where', {}) or {}
+        
+        # Parse exclude_completed (defaults to True)
+        exclude_completed = data.get('exclude_completed', True)
+        if isinstance(exclude_completed, str):
+            exclude_completed = exclude_completed.lower() == 'true'
+            
+        if exclude_completed:
+            where_filter["completed"] = False
+            
+        results = vector_store.search(query, n_results=10, where=where_filter)
         
         items = []
         for result in results:
+            distance = result.get('distance')
+            similarity = 1.0 - distance if distance is not None else 0.0
+            
             item = db.get_item_by_id(result['id'])
-            if item:
-                item['relevance_score'] = 1 - result['distance'] if result['distance'] else None
-                items.append(item)
+            title = item.get('title', 'Unknown') if item else 'Unknown'
+            
+            # Logging requirement: Print query, item id, title, similarity score
+            print(f"Query: {query} | Item ID: {result['id']} | Title: {title} | Similarity Score: {similarity}")
+            
+            # Apply similarity threshold
+            if similarity >= Config.SEARCH_SIMILARITY_THRESHOLD:
+                if item:
+                    item['relevance_score'] = similarity
+                    items.append(item)
         
         return jsonify({
             "success": True,
@@ -252,6 +290,7 @@ def get_items_grouped():
         
         today = datetime.now().date()
         tomorrow = (datetime.now() + timedelta(days=1)).date()
+        local_tz = datetime.now().astimezone().tzinfo
         
         grouped = {
             'today': [],
@@ -259,37 +298,41 @@ def get_items_grouped():
             'upcoming': []
         }
         
-        print(f"\n Grouping {len(all_items)} items...")
-        print(f"   Today: {today}")
-        print(f"   Tomorrow: {tomorrow}")
+        print(f"\n--- Grouping Diagnostics ---")
+        print(f"Current local date: {today}")
+        print(f"Current local timezone: {local_tz}")
         
         for item in all_items:
-            if not item.get('datetime'):
-                grouped['upcoming'].append(item)
+            dt_str = item.get('datetime')
+            if not dt_str:
+                print(f"Item ID: {item.get('id')} | Datetime: None | Parsed: None | Assigned: none")
                 continue
             
             try:
-                item_date = datetime.fromisoformat(item['datetime']).date()
+                dt = datetime.fromisoformat(dt_str)
+                if dt.tzinfo is not None:
+                    dt = dt.astimezone(local_tz)
+                item_date = dt.date()
                 
-                print(f"   Item: '{item['title'][:30]}' -> Date: {item_date}")
-                
+                assigned_buckets = []
                 if item_date == today:
-                    print(f"Added to TODAY")
                     grouped['today'].append(item)
+                    assigned_buckets.append('today')
                 elif item_date == tomorrow:
-                    print(f"Added to TOMORROW")
                     grouped['tomorrow'].append(item)
-                elif item_date > tomorrow:
-                    print(f" Added to UPCOMING")
+                    assigned_buckets.append('tomorrow')
+                
+                # Upcoming contains tomorrow and all future dates (> today)
+                if item_date > today:
                     grouped['upcoming'].append(item)
-                else:
-                    print(f" Past date, added to UPCOMING")
-                    grouped['upcoming'].append(item)
+                    assigned_buckets.append('upcoming')
+                
+                assigned_str = "/".join(assigned_buckets) if assigned_buckets else "none"
+                print(f"Item ID: {item.get('id')} | Datetime: {dt_str} | Parsed: {item_date} | Assigned: {assigned_str}")
             except Exception as date_error:
-                print(f"Date parse error: {date_error}")
-                grouped['upcoming'].append(item)
+                print(f"Item ID: {item.get('id')} | Datetime: {dt_str} | Parsed error: {date_error} | Assigned: none")
         
-        print(f"\n   Results: Today={len(grouped['today'])}, Tomorrow={len(grouped['tomorrow'])}, Upcoming={len(grouped['upcoming'])}\n")
+        print("----------------------------\n")
         
         if view == 'all':
             return jsonify({'success': True, 'items': grouped})

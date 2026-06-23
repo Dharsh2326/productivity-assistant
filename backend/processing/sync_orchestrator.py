@@ -5,9 +5,10 @@ from llm_extraction.llm_service import LLMService
 from database import Database 
 
 class SyncOrchestrator:
-    def __init__(self, database: Database, llm_service: LLMService, use_mock=True):
+    def __init__(self, database: Database, llm_service: LLMService, vector_store=None, use_mock=True):
         self.db = database
         self.llm = llm_service
+        self.vector_store = vector_store
         self.calendar_source = CalendarSource(use_mock=use_mock)
         self.email_source = EmailSource(use_mock=use_mock)
     
@@ -31,8 +32,20 @@ class SyncOrchestrator:
         for item in items:
             existing = self.db.get_item_by_external_id(item['external_id'])
             if not existing:
-                self.db.create_item(item)
+                item_id = self.db.create_item(item)
                 count += 1
+                if self.vector_store:
+                    try:
+                        search_text = f"{item.get('title', '')} {item.get('description', '') or ''} {' '.join(item.get('tags', []) or [])}"
+                        metadata = {
+                            'type': item.get('type', 'task'),
+                            'priority': item.get('priority', 'medium'),
+                            'tags': ','.join(item.get('tags', [])) if isinstance(item.get('tags'), list) else item.get('tags', ''),
+                            'completed': bool(item.get('completed', False))
+                        }
+                        self.vector_store.add_item(item_id, search_text, metadata)
+                    except Exception as vec_error:
+                        print(f"Warning: Failed to index synced calendar item: {vec_error}")
         
         return count
     
@@ -58,7 +71,19 @@ class SyncOrchestrator:
                 item['priority'] = enhanced_data.get('priority', item['priority'])
                 item['type'] = enhanced_data.get('type', item['type'])
                 
-                self.db.create_item(item)
+                item_id = self.db.create_item(item)
                 count += 1
+                if self.vector_store:
+                    try:
+                        search_text = f"{item.get('title', '')} {item.get('description', '') or ''} {' '.join(item.get('tags', []) or [])}"
+                        metadata = {
+                            'type': item.get('type', 'task'),
+                            'priority': item.get('priority', 'medium'),
+                            'tags': ','.join(item.get('tags', [])) if isinstance(item.get('tags'), list) else item.get('tags', ''),
+                            'completed': bool(item.get('completed', False))
+                        }
+                        self.vector_store.add_item(item_id, search_text, metadata)
+                    except Exception as vec_error:
+                        print(f"Warning: Failed to index synced email item: {vec_error}")
         
         return count

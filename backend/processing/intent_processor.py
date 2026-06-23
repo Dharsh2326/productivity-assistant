@@ -21,7 +21,8 @@ class IntentProcessor:
                     metadata = {
                         'type': item.get('type', 'task'),
                         'priority': item.get('priority', 'medium'),
-                        'tags': ','.join(item.get('tags', []) or [])
+                        'tags': ','.join(item.get('tags', [])) if isinstance(item.get('tags'), list) else item.get('tags', ''),
+                        'completed': bool(item.get('completed', False))
                     }
                     self.vector_store.add_item(item_id, search_text, metadata)
                 except Exception as vec_error:

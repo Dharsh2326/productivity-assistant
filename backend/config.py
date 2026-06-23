@@ -16,6 +16,9 @@ class Config:
     DATABASE_PATH = os.getenv('DATABASE_PATH', str(BASE_DIR / 'data' / 'productivity.db'))
     CHROMA_PATH = os.getenv('CHROMA_PATH', str(BASE_DIR / 'data' / 'chroma'))
     
+    # Search Configuration
+    SEARCH_SIMILARITY_THRESHOLD = float(os.getenv('SEARCH_SIMILARITY_THRESHOLD', '0.45'))
+    
     # Flask Configuration
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')
     FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'true').lower() == 'true'
