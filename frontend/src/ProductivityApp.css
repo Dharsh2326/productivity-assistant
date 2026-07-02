@@ -537,3 +537,687 @@ html, body, #root {
     width: 100%;
   }
 }
+
+/* ===== NEW PHASE 1 STYLES ===== */
+
+/* Professional Type Badges */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.type-badge.task {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.type-badge.note {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+}
+
+.type-badge.reminder {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+/* Inline Editing Form inside Item Card */
+.item-card.editing {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: #f8fafc !important;
+  border: 2px dashed #94a3b8 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.edit-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.edit-form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.edit-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.edit-input,
+.edit-textarea,
+.edit-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: white;
+  color: #1e293b;
+  transition: border-color 0.2s;
+}
+
+.edit-input:focus,
+.edit-textarea:focus,
+.edit-select:focus {
+  outline: none;
+  border-color: #64748b;
+}
+
+.edit-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.save-btn {
+  padding: 0.5rem 1rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+  background-color: #059669;
+}
+
+.cancel-btn {
+  padding: 0.5rem 1rem;
+  background-color: #94a3b8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn:hover {
+  background-color: #64748b;
+}
+
+/* Edit action button in footer */
+.edit-btn {
+  padding: 0.625rem 1.25rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: var(--pa-transition);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.edit-btn:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Sub-section headers (e.g. Overdue, Today, Upcoming) */
+.section-subtitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #334155;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Subtle Overdue Card Warning Style */
+.item-card.overdue-item {
+  background-color: #fffbeb !important;
+  border-left: 6px solid #f97316 !important;
+  border-color: #fde047;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.05) !important;
+}
+
+.item-card.overdue-item .item-title {
+  color: #7c2d12;
+}
+
+/* Dashboard Stats Header */
+.stats-header {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stats-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.stats-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stats-icon.tasks {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.stats-icon.reminders {
+  background-color: #ffedd5;
+  color: #ea580c;
+}
+
+.stats-icon.notes {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.stats-icon.completed {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.stats-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.stats-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* ==========================================================================
+   Ask Aura AI Assistant Styling
+   ========================================================================== */
+
+/* Floating Aura Button */
+.floating-aura-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7e22ce, #6366f1);
+  color: white;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.floating-aura-btn:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
+}
+
+.floating-aura-btn.open {
+  transform: scale(0.9) rotate(-90deg);
+  background: #f1f5f9;
+  color: #64748b;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.aura-glow-effect {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7e22ce, #6366f1);
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(8px);
+  animation: auraPulse 3s infinite alternate;
+}
+
+.floating-aura-btn.open .aura-glow-effect {
+  display: none;
+}
+
+@keyframes auraPulse {
+  0% {
+    transform: scale(1.0);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.12);
+    opacity: 0.6;
+  }
+}
+
+/* Aura Chat Panel Drawer */
+.aura-chat-panel {
+  position: fixed;
+  right: 30px;
+  bottom: 105px;
+  width: 400px;
+  height: calc(100vh - 150px);
+  max-height: 700px;
+  min-height: 400px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+}
+
+.aura-chat-panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Header */
+.aura-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.aura-panel-header .header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.aura-header-bot-icon {
+  color: #7e22ce;
+}
+
+.close-panel-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.close-panel-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Messages List */
+.aura-messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: #fafafa;
+}
+
+.chat-message-row {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 85%;
+}
+
+.chat-message-row.user-row {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-message-row.assistant-row {
+  align-self: flex-start;
+}
+
+.message-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+}
+
+.assistant-row .message-avatar {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+}
+
+.user-row .message-avatar {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.message-bubble {
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  border-radius: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.user-row .message-bubble {
+  background: #6366f1;
+  color: white;
+  border-top-right-radius: 2px;
+}
+
+.assistant-row .message-bubble {
+  background: white;
+  color: #1e293b;
+  border-top-left-radius: 2px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Source Attribution Styling */
+.aura-message-sources {
+  margin-top: 0.4rem;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 100%;
+}
+
+.sources-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sources-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.source-item-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #334155;
+  cursor: default;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-type-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 0.05rem 0.2rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.source-type-badge.task {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.source-type-badge.note {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+}
+
+.source-type-badge.reminder {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+.source-title-text {
+  font-weight: 500;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Loading state */
+.loading-row {
+  max-width: 100%;
+}
+
+.loading-bubble {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-style: italic;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+  color: #7e22ce;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Suggestions Container */
+.aura-suggestions-container {
+  padding: 0.75rem 1.25rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.suggestions-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.suggestion-chip-btn {
+  background: white;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.suggestion-chip-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+/* Input Panel Footer */
+.aura-panel-footer {
+  padding: 1rem 1.25rem;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+}
+
+.aura-footer-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.clear-error-btn {
+  background: transparent;
+  border: none;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.aura-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  border-radius: 24px;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  border: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.aura-input-wrapper:focus-within {
+  border-color: #818cf8;
+  background: white;
+}
+
+.aura-chat-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  resize: none;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+  color: #0f172a;
+  font-family: inherit;
+}
+
+.aura-send-btn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.aura-send-btn:hover {
+  background: #4f46e5;
+}
+
+.aura-send-btn:active {
+  transform: scale(0.95);
+}
+
+.aura-send-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+/* Responsiveness */
+@media (max-width: 480px) {
+  .aura-chat-panel {
+    right: 15px;
+    left: 15px;
+    bottom: 90px;
+    width: auto;
+    height: calc(100vh - 120px);
+  }
+  .floating-aura-btn {
+    bottom: 20px;
+    right: 20px;
+  }
+}

@@ -92,3 +92,13 @@ export const visualizeDay = async (date) => {
     throw error.response?.data || { error: 'Network error' };
   }
 };
+
+// Ask Aura conversational assistant
+export const askAura = async (message, history = []) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/ask-aura`, { message, history });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};

@@ -77,7 +77,7 @@ def check_database():
                 cursor.execute("SELECT COUNT(*) FROM items")
                 count = cursor.fetchone()[0]
                 print(f"   Contains {count} items")
-                print(f"   Schema: {len(columns)} columns ✓")
+                print(f"   Schema: {len(columns)} columns [OK]")
                 conn.close()
                 return True
         except Exception as e:

@@ -1,6 +1,6 @@
 import ItemCard from './ItemCard';
 
-function ItemList({ items, onDelete, onToggle, loading }) {
+function ItemList({ items, onDelete, onToggle, onUpdate, loading }) {
   if (loading) {
     return (
       <div className="loading-state">
@@ -28,6 +28,7 @@ function ItemList({ items, onDelete, onToggle, loading }) {
           item={item}
           onDelete={onDelete}
           onToggle={onToggle}
+          onUpdate={onUpdate}
         />
       ))}
     </div>

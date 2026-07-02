@@ -11,6 +11,7 @@ from llm_extraction.llm_service import LLMService
 from processing.intent_processor import IntentProcessor
 from processing.sync_orchestrator import SyncOrchestrator
 from visualizer.day_view_generator import DayViewGenerator
+from processing.ask_aura_service import AskAuraService
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -25,6 +26,7 @@ llm_service = LLMService()
 processor = IntentProcessor(db, vector_store)
 sync_orchestrator = SyncOrchestrator(db, llm_service, vector_store=vector_store, use_mock=Config.USE_MOCK_DATA)
 visualizer = DayViewGenerator(output_dir=str(STATIC_DIR))
+ask_aura_service = AskAuraService(db, vector_store)
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -209,6 +211,42 @@ def delete_item(item_id):
         print(f"Error deleting item: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/ask-aura', methods=['POST'])
+def ask_aura():
+    """Ask Aura conversational assistant"""
+    try:
+        data = request.get_json() or {}
+        message = data.get('message', '')
+        history = data.get('history', [])
+        
+        if not message:
+            return jsonify({"success": False, "error": "No message provided"}), 400
+            
+        print(f"Ask Aura query: '{message}' | History length: {len(history)}")
+        result = ask_aura_service.get_assistant_response(message, history)
+        
+        if not result.get('success', False):
+            return jsonify({
+                "success": False,
+                "error": result.get('error', 'Failed to generate response'),
+                "response": result.get('error', 'Failed to generate response'),
+                "sources": []
+            })
+            
+        return jsonify({
+            "success": True,
+            "response": result.get('response'),
+            "sources": result.get('sources', [])
+        })
+    except Exception as e:
+        print(f"Error in /api/ask-aura: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": "Internal server error occurred",
+            "response": "An internal server error occurred. Please try again.",
+            "sources": []
+        }), 500
+
 @app.route('/api/search', methods=['POST'])
 def search():
     """Semantic search"""
@@ -293,6 +331,7 @@ def get_items_grouped():
         local_tz = datetime.now().astimezone().tzinfo
         
         grouped = {
+            'overdue': [],
             'today': [],
             'tomorrow': [],
             'upcoming': []
@@ -315,7 +354,12 @@ def get_items_grouped():
                 item_date = dt.date()
                 
                 assigned_buckets = []
-                if item_date == today:
+                # Overdue: incomplete items with due date before today
+                if item_date < today:
+                    if not bool(item.get('completed')):
+                        grouped['overdue'].append(item)
+                        assigned_buckets.append('overdue')
+                elif item_date == today:
                     grouped['today'].append(item)
                     assigned_buckets.append('today')
                 elif item_date == tomorrow:

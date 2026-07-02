@@ -1,8 +1,13 @@
+import os
+os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+
+import logging
+logging.getLogger('chromadb').setLevel(logging.CRITICAL)
+
 import chromadb
 from chromadb.config import Settings
 from config import Config  # Changed from .config
 from typing import List, Dict
-import os
 import shutil
 import time
 import sqlite3

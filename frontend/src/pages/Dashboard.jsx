@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import InputBox from '../components/InputBox';
 import ItemList from '../components/ItemList';
 import SearchBar from '../components/SearchBar';
 import { 
   getItemsGrouped, 
+  getItems,
   syncExternalData, 
   parseInput, 
   deleteItem, 
@@ -16,18 +17,42 @@ import '../styles/Dashboard.css';
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeView, setActiveView] = useState('today');
+  
+  // Lists
   const [items, setItems] = useState([]);
+  const [todayItems, setTodayItems] = useState([]);
+  const [overdueItems, setOverdueItems] = useState([]);
+  
+  // Stats
+  const [stats, setStats] = useState({
+    todaysTasks: 0,
+    activeReminders: 0,
+    totalNotes: 0,
+    completedToday: 0
+  });
+
   const [loading, setLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Handle cross-page navigation view setting
+  useEffect(() => {
+    if (location.state?.view) {
+      setActiveView(location.state.view);
+      // Clear location state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
+
   useEffect(() => {
     if (!searchMode) {
       loadItems();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeView, searchMode]);
 
   const handleSearch = async (query) => {
@@ -55,18 +80,54 @@ function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await getItemsGrouped(activeView);
+      // 1. Fetch both grouped and all items to calculate stats and list views in parallel
+      const [groupedResponse, allItemsResponse] = await Promise.all([
+        getItemsGrouped('all'),
+        getItems()
+      ]);
       
-      let allItems = [];
-      if (activeView === 'today' || activeView === 'tomorrow' || activeView === 'upcoming') {
-        allItems = response.items;
-      } else {
-        allItems = response.items[activeView] || [];
+      const allItems = allItemsResponse.items || [];
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // 2. Compute Statistics locally
+      const computedStats = {
+        todaysTasks: allItems.filter(item => {
+          const isTask = item.type === 'task';
+          const isIncomplete = !item.completed;
+          const itemDateStr = item.datetime ? item.datetime.split('T')[0] : '';
+          return isTask && isIncomplete && itemDateStr === todayStr;
+        }).length,
+        
+        activeReminders: allItems.filter(item => {
+          return item.type === 'reminder' && !item.completed;
+        }).length,
+        
+        totalNotes: allItems.filter(item => {
+          return item.type === 'note';
+        }).length,
+        
+        completedToday: allItems.filter(item => {
+          const isCompleted = item.completed;
+          const updatedAtStr = item.updated_at ? item.updated_at.split('T')[0] : '';
+          return isCompleted && updatedAtStr === todayStr;
+        }).length
+      };
+      
+      setStats(computedStats);
+
+      // 3. Load items depending on activeView
+      if (activeView === 'today') {
+        const overdue = (groupedResponse.items.overdue || []).filter(item => !item.completed);
+        const today = (groupedResponse.items.today || []).filter(item => !item.completed);
+        setOverdueItems(overdue);
+        setTodayItems(today);
+      } else if (activeView === 'tomorrow') {
+        const tomorrow = (groupedResponse.items.tomorrow || []).filter(item => !item.completed);
+        setItems(tomorrow);
+      } else if (activeView === 'upcoming') {
+        const upcoming = (groupedResponse.items.upcoming || []).filter(item => !item.completed);
+        setItems(upcoming);
       }
-      
-      // Filter out completed items
-      const activeItems = allItems.filter(item => !item.completed);
-      setItems(activeItems);
     } catch (error) {
       setError('Error: Unable to load tasks');
       console.error('Load error:', error);
@@ -105,7 +166,7 @@ function DashboardPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this item?')) return;
+    if (!window.confirm('Delete this item? Deletion is permanent.')) return;
     
     try {
       await deleteItem(id);
@@ -118,21 +179,23 @@ function DashboardPage() {
   const handleToggle = async (id, completed) => {
     try {
       await updateItem(id, { completed });
-      // Remove from view immediately when completed
-      if (completed) {
-        setItems(items.filter(item => item.id !== id));
-      } else {
-        loadItems();
-      }
+      loadItems();
+    } catch (error) {
+      setError('Failed to update item');
+    }
+  };
+
+  const handleUpdate = async (id, updates) => {
+    try {
+      await updateItem(id, updates);
+      loadItems();
     } catch (error) {
       setError('Failed to update item');
     }
   };
 
   const handleLogout = () => {
-    // Clear all local storage data
     localStorage.clear();
-    // Navigate to home
     navigate('/');
   };
 
@@ -162,7 +225,7 @@ function DashboardPage() {
                ' Upcoming'}
             </h1>
             <p className="view-subtitle">
-              {items.length} active {items.length === 1 ? 'item' : 'items'}
+              {activeView === 'today' ? (todayItems.length + overdueItems.length) : items.length} active {items.length === 1 ? 'item' : 'items'}
             </p>
           </div>
           <div className="header-search">
@@ -175,19 +238,91 @@ function DashboardPage() {
           </div>
         </div>
 
+        {/* Lightweight Stats Header */}
+        <section className="stats-header">
+          <div className="stats-card">
+            <div className="stats-icon tasks">📋</div>
+            <div className="stats-info">
+              <span className="stats-value">{stats.todaysTasks}</span>
+              <span className="stats-label">Today's Tasks</span>
+            </div>
+          </div>
+          <div className="stats-card">
+            <div className="stats-icon reminders">⏰</div>
+            <div className="stats-info">
+              <span className="stats-value">{stats.activeReminders}</span>
+              <span className="stats-label">Active Reminders</span>
+            </div>
+          </div>
+          <div className="stats-card">
+            <div className="stats-icon notes">📝</div>
+            <div className="stats-info">
+              <span className="stats-value">{stats.totalNotes}</span>
+              <span className="stats-label">Total Notes</span>
+            </div>
+          </div>
+          <div className="stats-card">
+            <div className="stats-icon completed">✓</div>
+            <div className="stats-info">
+              <span className="stats-value">{stats.completedToday}</span>
+              <span className="stats-label">Completed Today</span>
+            </div>
+          </div>
+        </section>
+
         <section className="input-section">
           <h2> Add New Task</h2>
           <InputBox onSubmit={handleAddInput} />
         </section>
 
-        <section className="items-section">
-          <ItemList
-            items={items}
-            onDelete={handleDelete}
-            onToggle={handleToggle}
-            loading={loading}
-          />
-        </section>
+        {searchMode ? (
+          <section className="items-section">
+            <h2 className="section-subtitle">🔍 Search Results</h2>
+            <ItemList
+              items={items}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+              onUpdate={handleUpdate}
+              loading={loading}
+            />
+          </section>
+        ) : activeView === 'today' ? (
+          <>
+            {overdueItems.length > 0 && (
+              <section className="items-section">
+                <h2 className="section-subtitle">⚠️ Overdue</h2>
+                <ItemList
+                  items={overdueItems}
+                  onDelete={handleDelete}
+                  onToggle={handleToggle}
+                  onUpdate={handleUpdate}
+                  loading={loading}
+                />
+              </section>
+            )}
+
+            <section className="items-section">
+              <h2 className="section-subtitle">📅 Today</h2>
+              <ItemList
+                items={todayItems}
+                onDelete={handleDelete}
+                onToggle={handleToggle}
+                onUpdate={handleUpdate}
+                loading={loading}
+              />
+            </section>
+          </>
+        ) : (
+          <section className="items-section">
+            <ItemList
+              items={items}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+              onUpdate={handleUpdate}
+              loading={loading}
+            />
+          </section>
+        )}
       </main>
     </div>
   );
