@@ -218,25 +218,39 @@ def ask_aura():
         data = request.get_json() or {}
         message = data.get('message', '')
         history = data.get('history', [])
+        session_id = data.get('session_id', 'default_session')
+        confirm_action = data.get('confirm_action', None)  # 'confirm' or 'cancel'
         
-        if not message:
-            return jsonify({"success": False, "error": "No message provided"}), 400
+        if not message and confirm_action is None:
+            return jsonify({"success": False, "error": "No message or confirmation provided"}), 400
             
-        print(f"Ask Aura query: '{message}' | History length: {len(history)}")
-        result = ask_aura_service.get_assistant_response(message, history)
+        print(f"Ask Aura query: '{message}' | History length: {len(history)} | Session: {session_id} | Confirm: {confirm_action}")
+        result = ask_aura_service.get_assistant_response(
+            message=message,
+            history=history,
+            session_id=session_id,
+            confirm_action=confirm_action
+        )
         
         if not result.get('success', False):
             return jsonify({
                 "success": False,
                 "error": result.get('error', 'Failed to generate response'),
                 "response": result.get('error', 'Failed to generate response'),
-                "sources": []
+                "sources": [],
+                "action_performed": False
             })
             
+        # Return complete action rich JSON structure
         return jsonify({
             "success": True,
             "response": result.get('response'),
-            "sources": result.get('sources', [])
+            "sources": result.get('sources', []),
+            "action_performed": result.get('action_performed', False),
+            "action_type": result.get('action_type', None),
+            "affected_items": result.get('affected_items', []),
+            "pending_confirmation": result.get('pending_confirmation', None),
+            "ambiguous_matches": result.get('ambiguous_matches', None)
         })
     except Exception as e:
         print(f"Error in /api/ask-aura: {str(e)}")
@@ -244,7 +258,8 @@ def ask_aura():
             "success": False,
             "error": "Internal server error occurred",
             "response": "An internal server error occurred. Please try again.",
-            "sources": []
+            "sources": [],
+            "action_performed": False
         }), 500
 
 @app.route('/api/search', methods=['POST'])

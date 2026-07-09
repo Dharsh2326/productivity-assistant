@@ -15,12 +15,23 @@ function RemindersPage() {
   const [error, setError] = useState(null);
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!searchMode) {
       loadReminders();
     }
-  }, [searchMode]);
+  }, [searchMode, refreshKey]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+    window.addEventListener('aura-refresh-data', handleRefresh);
+    return () => {
+      window.removeEventListener('aura-refresh-data', handleRefresh);
+    };
+  }, []);
 
   const loadReminders = async () => {
     setLoading(true);

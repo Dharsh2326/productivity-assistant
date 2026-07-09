@@ -1220,4 +1220,242 @@ html, body, #root {
     bottom: 20px;
     right: 20px;
   }
+}
+
+/* Phase 2: Action Cards & UI Styling */
+
+.disambiguation-container {
+  margin-top: 0.75rem;
+  background: rgba(243, 244, 246, 0.5);
+  border-radius: 8px;
+  padding: 0.75rem;
+  border-left: 3px solid #f59e0b;
+}
+.disambiguation-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+.disambiguation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.disambiguation-choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.disambiguation-choice-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+.disambiguation-choice-btn .item-type-tag {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.disambiguation-choice-btn .item-type-tag.task { background: #fee2e2; color: #991b1b; }
+.disambiguation-choice-btn .item-type-tag.reminder { background: #fef3c7; color: #92400e; }
+.disambiguation-choice-btn .item-type-tag.note { background: #dbeafe; color: #1e40af; }
+.disambiguation-choice-btn .item-title {
+  font-size: 0.85rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Confirmation Card */
+.aura-confirmation-card {
+  margin-top: 0.75rem;
+  background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.08);
+  animation: slideInUp 0.3s ease;
+}
+.confirmation-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #c2410c;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+.confirmation-header .warn-icon {
+  color: #ea580c;
+}
+.confirmation-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.affected-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #ffedd5;
+}
+.item-type-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+.item-type-badge.task { background: #fee2e2; color: #991b1b; }
+.item-type-badge.reminder { background: #fef3c7; color: #92400e; }
+.item-type-badge.note { background: #dbeafe; color: #1e40af; }
+.affected-item-row .item-detail {
+  flex: 1;
+}
+.affected-item-row .item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+.affected-item-row .item-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+.confirmation-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.confirmation-actions button {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.btn-confirm {
+  background: #ea580c;
+  color: white;
+}
+.btn-confirm:hover {
+  background: #d97706;
+}
+.btn-cancel {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+.btn-cancel:hover {
+  background: #d1d5db;
+}
+
+/* Actions Performed Section */
+.aura-actions-performed-container {
+  margin-top: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+.actions-performed-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.action-item-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  padding: 0.6rem 0.8rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+.action-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #475569;
+  margin-bottom: 0.3rem;
+}
+.action-type-text {
+  letter-spacing: 0.02em;
+}
+.action-icon.create-color { color: #10b981; }
+.action-icon.complete-color { color: #3b82f6; }
+.action-icon.delete-color { color: #ef4444; }
+.action-icon.update-color { color: #f59e0b; }
+
+.action-item-body .action-item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+.action-item-body .action-item-desc {
+  font-size: 0.75rem;
+  color: #475569;
+  margin-top: 0.2rem;
+}
+.action-item-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+.meta-type-tag {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+.meta-type-tag.task { background: #fee2e2; color: #991b1b; }
+.meta-type-tag.reminder { background: #fef3c7; color: #92400e; }
+.meta-type-tag.note { background: #dbeafe; color: #1e40af; }
+.meta-priority {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+.meta-priority.high { background: #fee2e2; color: #b91c1c; }
+.meta-priority.medium { background: #f1f5f9; color: #475569; }
+.meta-priority.low { background: #f0fdf4; color: #16a34a; }
+.meta-date {
+  font-size: 0.65rem;
+  color: #64748b;
+  margin-left: auto;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

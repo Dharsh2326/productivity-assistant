@@ -1,16 +1,42 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, X, Bot, User, Sparkles, Loader } from 'lucide-react';
+import { Send, X, Bot, User, Sparkles, Loader, CheckCircle, AlertTriangle, Info, Trash2, Edit, CheckSquare, PlusCircle } from 'lucide-react';
 import { askAura } from '../services/api';
 
 function AuraChatPanel({ isOpen, onClose }) {
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: 'Hello! I am Aura, your AI productivity workspace assistant. How can I help you organize or prioritize your day?',
-      sources: []
+  // Generate or retrieve persistent Session ID
+  const [sessionId] = useState(() => {
+    let id = sessionStorage.getItem('aura_session_id');
+    if (!id) {
+      id = 'session_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+      sessionStorage.setItem('aura_session_id', id);
     }
-  ]);
+    return id;
+  });
+
+  const [messages, setMessages] = useState(() => {
+    const saved = sessionStorage.getItem('aura_messages');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse saved aura messages', e);
+      }
+    }
+    return [
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: 'Hello! I am Aura, your AI productivity workspace assistant. I can now create, update, complete, and delete your tasks, reminders, and notes. Try asking me something!',
+        sources: [],
+        actionPerformed: false
+      }
+    ];
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('aura_messages', JSON.stringify(messages));
+  }, [messages]);
+
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -19,10 +45,10 @@ function AuraChatPanel({ isOpen, onClose }) {
 
   const suggestedPrompts = [
     'What should I do today?',
-    'Show overdue tasks.',
-    'Show my reminders.',
-    'Show my notes.',
-    'Summarize my workload.'
+    'Remind me to revise DBMS tomorrow 7pm',
+    'Mark groceries as complete',
+    'Delete old gym reminder',
+    'Move DBMS assignment to Friday'
   ];
 
   // Auto-scroll to bottom of messages
@@ -34,13 +60,16 @@ function AuraChatPanel({ isOpen, onClose }) {
     scrollToBottom();
   }, [messages, loading]);
 
-  const handleSendMessage = async (textToSend) => {
-    if (!textToSend.trim() || loading) return;
+  const handleSendMessage = async (textToSend, confirmAction = null, pendingConfData = null) => {
+    if (!textToSend.trim() && !confirmAction) return;
+    if (loading) return;
+
+    const userMsgText = confirmAction ? (confirmAction === 'confirm' ? 'Confirm' : 'Cancel') : textToSend;
 
     const userMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: textToSend
+      content: userMsgText
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -55,22 +84,31 @@ function AuraChatPanel({ isOpen, onClose }) {
     }));
 
     try {
-      const data = await askAura(textToSend, historyPayload);
+      const data = await askAura(textToSend, historyPayload, confirmAction, sessionId);
       
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.response || "I didn't get a proper response.",
-        sources: data.sources || []
+        content: data.response || "No response received.",
+        sources: data.sources || [],
+        actionPerformed: data.action_performed || false,
+        actionType: data.action_type || null,
+        affectedItems: data.affected_items || [],
+        pendingConfirmation: data.pending_confirmation || null,
+        ambiguousMatches: data.ambiguous_matches || null
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // Emit refresh event if an action was executed
+      if (data.action_performed) {
+        window.dispatchEvent(new CustomEvent('aura-refresh-data'));
+      }
     } catch (err) {
       console.error('Ask Aura error:', err);
       const friendlyErr = err.error || "I'm having trouble connecting to my backend. Please make sure the backend server and Ollama are running.";
       setErrorMsg(friendlyErr);
       
-      // Also add an assistant message indicating failure
       setMessages(prev => [
         ...prev, 
         {
@@ -89,6 +127,26 @@ function AuraChatPanel({ isOpen, onClose }) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage(input);
+    }
+  };
+
+  // Helper to render action icon
+  const getActionIcon = (actionType) => {
+    if (!actionType) return <CheckCircle className="action-icon" size={16} />;
+    if (actionType.startsWith('create')) return <PlusCircle className="action-icon create-color" size={16} />;
+    if (actionType.startsWith('complete')) return <CheckSquare className="action-icon complete-color" size={16} />;
+    if (actionType.startsWith('delete')) return <Trash2 className="action-icon delete-color" size={16} />;
+    return <Edit className="action-icon update-color" size={16} />;
+  };
+
+  // Helper to format date
+  const formatItemDate = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return dateStr;
     }
   };
 
@@ -115,20 +173,107 @@ function AuraChatPanel({ isOpen, onClose }) {
                 {isAssistant ? <Sparkles size={16} /> : <User size={16} />}
               </div>
               <div className="message-content-wrapper">
+                
+                {/* Standard Message Bubble */}
                 <div className="message-bubble">
                   {msg.content}
                 </div>
-                
-                {/* Sources Attribution */}
+
+                {/* Ambiguous matches / Disambiguation choices */}
+                {isAssistant && msg.ambiguousMatches && msg.ambiguousMatches.length > 0 && (
+                  <div className="disambiguation-container">
+                    <div className="disambiguation-label">Matching items found:</div>
+                    <div className="disambiguation-list">
+                      {msg.ambiguousMatches.map((item) => (
+                        <button
+                          key={item.id}
+                          className="disambiguation-choice-btn"
+                          onClick={() => handleSendMessage(String(item.id))}
+                        >
+                          <span className={`item-type-tag ${item.type}`}>{item.type.toUpperCase()}</span>
+                          <span className="item-title">{item.title}</span>
+                          <span className="item-id-hint">ID: {item.id}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pending Confirmation Card */}
+                {isAssistant && msg.pendingConfirmation && (
+                  <div className="aura-confirmation-card">
+                    <div className="confirmation-header">
+                      <AlertTriangle size={18} className="warn-icon" />
+                      <span>Confirm {msg.pendingConfirmation.action_type.replace('_', ' ')}</span>
+                    </div>
+                    <div className="confirmation-body">
+                      {msg.pendingConfirmation.affected_items && msg.pendingConfirmation.affected_items.map((item, idx) => (
+                        <div key={idx} className="affected-item-row">
+                          <span className={`item-type-badge ${item.type}`}>{item.type.toUpperCase()}</span>
+                          <div className="item-detail">
+                            <div className="item-title">{item.title}</div>
+                            {item.datetime && <div className="item-date">{formatItemDate(item.datetime)}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="confirmation-actions">
+                      <button 
+                        className="btn-confirm" 
+                        onClick={() => handleSendMessage('', 'confirm', msg.pendingConfirmation)}
+                        disabled={loading}
+                      >
+                        Confirm
+                      </button>
+                      <button 
+                        className="btn-cancel" 
+                        onClick={() => handleSendMessage('', 'cancel', msg.pendingConfirmation)}
+                        disabled={loading}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions Performed Section (Separated from Sources) */}
+                {isAssistant && msg.actionPerformed && msg.affectedItems && msg.affectedItems.length > 0 && (
+                  <div className="aura-actions-performed-container">
+                    <div className="actions-performed-label">Actions Performed:</div>
+                    <div className="actions-list">
+                      {msg.affectedItems.map((item, idx) => (
+                        <div key={idx} className="action-item-card">
+                          <div className="action-item-header">
+                            {getActionIcon(msg.actionType)}
+                            <span className="action-type-text">
+                              {msg.actionType ? msg.actionType.replace('_', ' ').toUpperCase() : 'UPDATED'}
+                            </span>
+                          </div>
+                          <div className="action-item-body">
+                            <div className="action-item-title">{item.title}</div>
+                            {item.description && <div className="action-item-desc">{item.description}</div>}
+                            <div className="action-item-meta">
+                              <span className={`meta-type-tag ${item.type}`}>{item.type.toUpperCase()}</span>
+                              {item.priority && <span className={`meta-priority ${item.priority}`}>{item.priority}</span>}
+                              {item.datetime && <span className="meta-date">{formatItemDate(item.datetime)}</span>}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sources Used Section (Separated from Actions) */}
                 {isAssistant && msg.sources && msg.sources.length > 0 && (
                   <div className="aura-message-sources">
-                    <div className="sources-label">Sources Consulted:</div>
+                    <div className="sources-label">Sources Used:</div>
                     <div className="sources-list">
                       {msg.sources.map((src, index) => (
                         <div 
                           key={index} 
                           className="source-item-chip" 
-                          title={`ID: ${src.id} | Match: ${Math.round(src.relevance_score * 100)}%`}
+                          title={`ID: ${src.id} | Relevance: ${Math.round(src.relevance_score * 100)}%`}
                         >
                           <span className={`source-type-badge ${src.type}`}>
                             {src.type.toUpperCase()}
@@ -139,6 +284,7 @@ function AuraChatPanel({ isOpen, onClose }) {
                     </div>
                   </div>
                 )}
+
               </div>
             </div>
           );
@@ -162,7 +308,7 @@ function AuraChatPanel({ isOpen, onClose }) {
 
       {/* Suggested Prompts Section */}
       <div className="aura-suggestions-container">
-        <p className="suggestions-header">Quick Questions:</p>
+        <p className="suggestions-header">Try commands:</p>
         <div className="suggestions-list">
           {suggestedPrompts.map((prompt, idx) => (
             <button 
@@ -191,7 +337,7 @@ function AuraChatPanel({ isOpen, onClose }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="Ask Aura about your tasks, notes..."
+            placeholder="Ask Aura or manage AuraPlan..."
             rows={1}
             disabled={loading}
           />

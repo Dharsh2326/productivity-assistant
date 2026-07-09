@@ -16,8 +16,12 @@ function LoginPage() {
     
     // Simulate login process
     setTimeout(() => {
-      // Clear any existing data
+      // Clear any existing data + Aura chat history so new session starts fresh
       localStorage.removeItem('taskmaster_session');
+      localStorage.removeItem('aura_session_id');
+      localStorage.removeItem('aura_messages');
+      sessionStorage.removeItem('aura_session_id');
+      sessionStorage.removeItem('aura_messages');
       // Create new session
       localStorage.setItem('taskmaster_session', JSON.stringify({
         email,

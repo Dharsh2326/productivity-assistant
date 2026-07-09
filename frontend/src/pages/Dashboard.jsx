@@ -38,12 +38,13 @@ function DashboardPage() {
   const [error, setError] = useState(null);
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Handle cross-page navigation view setting
   useEffect(() => {
     if (location.state?.view) {
       setActiveView(location.state.view);
-      // Clear location state
+      // Clear state so it doesn't get stuck if user navigates away and back manually
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -53,7 +54,17 @@ function DashboardPage() {
       loadItems();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeView, searchMode]);
+  }, [activeView, searchMode, refreshKey]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+    window.addEventListener('aura-refresh-data', handleRefresh);
+    return () => {
+      window.removeEventListener('aura-refresh-data', handleRefresh);
+    };
+  }, []);
 
   const handleSearch = async (query) => {
     setLoading(true);

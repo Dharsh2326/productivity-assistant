@@ -94,9 +94,14 @@ export const visualizeDay = async (date) => {
 };
 
 // Ask Aura conversational assistant
-export const askAura = async (message, history = []) => {
+export const askAura = async (message, history = [], confirmAction = null, sessionId = null) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/ask-aura`, { message, history });
+    const response = await axios.post(`${API_BASE_URL}/ask-aura`, { 
+      message, 
+      history,
+      confirm_action: confirmAction,
+      session_id: sessionId
+    });
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };

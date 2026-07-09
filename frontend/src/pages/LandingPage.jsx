@@ -72,7 +72,14 @@ function LandingPage() {
                 <button className="btn-primary-new" onClick={() => navigate('/login')}>
                   Get Started <ArrowRight size={20} />
                 </button>
-                <button className="btn-secondary-new" onClick={() => navigate('/dashboard')}>
+                <button className="btn-secondary-new" onClick={() => {
+                  // Clear any stale Aura session so demo always starts fresh
+                  sessionStorage.removeItem('aura_session_id');
+                  sessionStorage.removeItem('aura_messages');
+                  localStorage.removeItem('aura_session_id');
+                  localStorage.removeItem('aura_messages');
+                  navigate('/dashboard');
+                }}>
                   View Demo
                 </button>
               </div>

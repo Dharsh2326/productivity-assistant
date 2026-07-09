@@ -9,9 +9,20 @@ function CompletedTasksPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     loadCompletedItems();
+  }, [refreshKey]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+    window.addEventListener('aura-refresh-data', handleRefresh);
+    return () => {
+      window.removeEventListener('aura-refresh-data', handleRefresh);
+    };
   }, []);
 
   const loadCompletedItems = async () => {
