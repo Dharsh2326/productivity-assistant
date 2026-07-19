@@ -34,6 +34,10 @@ class AskAuraService:
 
     def _detect_bulk_intent(self, message: str) -> Optional[Dict[str, Any]]:
         msg = message.lower().strip()
+        # "remainder(s)" is an extremely common typo for "reminder(s)" - normalize it
+        # so bulk-pattern matching isn't brittle to this one specific misspelling.
+        msg = re.sub(r'\bremainders\b', 'reminders', msg)
+        msg = re.sub(r'\bremainder\b', 'reminder', msg)
         
         # Define the bulk patterns and their filters
         bulk_patterns = {
@@ -248,10 +252,11 @@ class AskAuraService:
 
             # 4. Handle Action Intents
             if intent in ("create_task", "create_reminder", "create_note"):
-                title = entities.get("title") or message
+                title = self.action_processor._clean_title(message, entities.get("title"))
                 desc = entities.get("description")
                 dt = entities.get("datetime")
-                priority = entities.get("priority") or "medium"
+                raw_priority = entities.get("priority")
+                priority = raw_priority if raw_priority in ("low", "medium", "high") else "medium"
                 tags = entities.get("tags") or []
                 
                 item_type = "task"
@@ -644,19 +649,32 @@ class AskAuraService:
 
         # Format items as a compact string
         today_formatted = datetime.now().strftime('%A, %B %d, %Y')
+        today_date_only = datetime.now().date().isoformat()
         context_str = f"Today's Date: {today_formatted}\n\n"
         
         if context_list:
             context_str += "Retrieved AuraPlan Items:\n"
             for item in context_list:
                 item_type = item['type'].upper()
-                status = "Completed" if item.get('completed') else "Active"
+                is_completed = bool(item.get('completed'))
+                status = "Completed" if is_completed else "Active"
                 due = f", Due: {item.get('datetime')}" if item.get('datetime') else ""
                 priority = f", Priority: {item.get('priority')}" if item.get('priority') else ""
                 tags = f", Tags: {item.get('tags')}" if item.get('tags') else ""
                 desc = f", Description: {item.get('description')}" if item.get('description') else ""
-                
-                context_str += f"- [{item_type}] ID: {item['id']}, Title: '{item['title']}', Status: {status}{due}{priority}{tags}{desc}\n"
+
+                # Deterministic timing label - computed in Python, not left for the LLM to work out.
+                timing = ""
+                if item.get('datetime') and not is_completed:
+                    item_date_only = item['datetime'].split('T')[0]
+                    if item_date_only < today_date_only:
+                        timing = " [OVERDUE]"
+                    elif item_date_only == today_date_only:
+                        timing = " [DUE TODAY]"
+                    else:
+                        timing = " [UPCOMING]"
+
+                context_str += f"- [{item_type}]{timing} ID: {item['id']}, Title: '{item['title']}', Status: {status}{due}{priority}{tags}{desc}\n"
         else:
             context_str += "No matching tasks, reminders, or notes found in database for this query.\n"
 
@@ -667,7 +685,9 @@ class AskAuraService:
             "1. PRIORITIZE RETRIEVED DATA: Always prioritize the retrieved AuraPlan items context over general knowledge.\n"
             "2. GROUNDING & FACTS: Strictly distinguish between facts found in the user's data and suggestions/recommendations you generate. Do not hallucinate or invent items.\n"
             "3. CONCISE & ACTIONABLE: Keep answers direct, friendly, and structured (bullet points are preferred for lists).\n"
-            "4. TONE GUIDELINES: Do not give arbitrary directives like 'You should finish DBMS first.' Instead, base recommendations on retrieved data, e.g., 'You currently have an overdue DBMS assignment due on June 23rd. Based on this, you might want to prioritize it.'"
+            "4. TONE GUIDELINES: Do not give arbitrary directives like 'You should finish DBMS first.' Instead, base recommendations on retrieved data, e.g., 'You currently have an overdue DBMS assignment due on June 23rd. Based on this, you might want to prioritize it.'\n"
+            "5. DATE FIDELITY: When citing a due date, priority, or status, you MUST copy it verbatim from the retrieved item's context line above. Never estimate, round, guess, or invent a date.\n"
+            "6. TIMING LABELS: Each item is already tagged [OVERDUE], [DUE TODAY], or [UPCOMING] in the context above. Always use that exact tag to describe an item's timing. Do NOT compute or guess whether something is overdue/today/upcoming yourself — trust the provided tag completely."
         )
 
         history_str = ""

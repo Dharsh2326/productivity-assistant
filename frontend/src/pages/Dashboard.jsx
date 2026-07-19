@@ -24,6 +24,7 @@ function DashboardPage() {
   const [items, setItems] = useState([]);
   const [todayItems, setTodayItems] = useState([]);
   const [overdueItems, setOverdueItems] = useState([]);
+  const [noDateItems, setNoDateItems] = useState([]);
   
   // Stats
   const [stats, setStats] = useState({
@@ -130,8 +131,10 @@ function DashboardPage() {
       if (activeView === 'today') {
         const overdue = (groupedResponse.items.overdue || []).filter(item => !item.completed);
         const today = (groupedResponse.items.today || []).filter(item => !item.completed);
+        const noDate = (groupedResponse.items.no_date || []).filter(item => !item.completed);
         setOverdueItems(overdue);
         setTodayItems(today);
+        setNoDateItems(noDate);
       } else if (activeView === 'tomorrow') {
         const tomorrow = (groupedResponse.items.tomorrow || []).filter(item => !item.completed);
         setItems(tomorrow);
@@ -236,7 +239,7 @@ function DashboardPage() {
                ' Upcoming'}
             </h1>
             <p className="view-subtitle">
-              {activeView === 'today' ? (todayItems.length + overdueItems.length) : items.length} active {items.length === 1 ? 'item' : 'items'}
+              {activeView === 'today' ? (todayItems.length + overdueItems.length + noDateItems.length) : items.length} active {items.length === 1 ? 'item' : 'items'}
             </p>
           </div>
           <div className="header-search">
@@ -322,6 +325,19 @@ function DashboardPage() {
                 loading={loading}
               />
             </section>
+
+            {noDateItems.length > 0 && (
+              <section className="items-section">
+                <h2 className="section-subtitle">📌 No Due Date</h2>
+                <ItemList
+                  items={noDateItems}
+                  onDelete={handleDelete}
+                  onToggle={handleToggle}
+                  onUpdate={handleUpdate}
+                  loading={loading}
+                />
+              </section>
+            )}
           </>
         ) : (
           <section className="items-section">

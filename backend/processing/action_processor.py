@@ -44,6 +44,21 @@ class ActionProcessor:
 
         return f"{target_date}T{time_part}"
 
+    def _clean_title(self, message: str, extracted_title: Optional[str]) -> str:
+        """
+        Deterministic fallback: strips common command/filler words from a title
+        if the LLM's extraction still contains them (e.g. it dumped the raw
+        message in as the title instead of a clean phrase).
+        """
+        title = (extracted_title or message).strip()
+        filler_pattern = re.compile(
+            r'^(please\s+)?(today\s+|tomorrow\s+|tonight\s+)?(add|create|make|new)\s+'
+            r'(a\s+|an\s+)?(task|reminder|note)?\s*(for|to|that|:)?\s*',
+            re.IGNORECASE
+        )
+        cleaned = filler_pattern.sub('', title).strip()
+        return cleaned if cleaned else title
+
     def parse_intent_and_entities(self, message: str) -> Dict[str, Any]:
         """Use Ollama to classify intent and extract entities"""
         now = datetime.now()
@@ -83,6 +98,14 @@ For 'update_item', 'complete_item', 'restore_item', and 'delete_item' intents:
   - "change X to Y" -> target_title: "X", update_fields: {{"title": "Y"}}
   - "update title X -> Y" -> target_title: "X", update_fields: {{"title": "Y"}}
   - "change title of X to Y" -> target_title: "X", update_fields: {{"title": "Y"}}
+
+TITLE EXTRACTION RULES:
+- The 'title' must be a CLEAN, natural title — strip filler/command words like "add", "create", "task", "note", "reminder", "please", and any time phrases ("today", "tomorrow", "at 9pm", etc.).
+- Capitalize naturally (Title Case for short phrases).
+- Examples:
+  "today add task evening maths tution" -> title: "Evening Maths Tuition"
+  "create task Math Revision" -> title: "Math Revision"
+  "remind me to call mom tomorrow at 5pm" -> title: "Call Mom"
 
 Extract entities matching this JSON structure:
 {{
@@ -146,44 +169,63 @@ CRITICAL: Output ONLY valid JSON. No explanation, no markdown blocks. Keep it cl
             print(f"Error parsing intent: {e}")
             return {"intent": "query", "entities": {}}
 
+    def _title_waterfall(self, items: List[Dict[str, Any]], target_title_stripped: str, target_lower: str):
+        """Runs exact -> case-insensitive -> substring matching against a given item pool."""
+        exact_matches = [item for item in items if item.get('title', '') == target_title_stripped]
+        if exact_matches:
+            return exact_matches, "exact_title", 1.0
+
+        ci_matches = [item for item in items if item.get('title', '').lower() == target_lower]
+        if ci_matches:
+            return ci_matches, "case_insensitive_title", 1.0
+
+        sub_matches = [item for item in items if target_lower in item.get('title', '').lower()]
+        if sub_matches:
+            return sub_matches, "substring_title", 1.0
+
+        return None
+
     def find_matching_items(self, target_title: str, target_type: Optional[str] = None, completed: Optional[bool] = None) -> Tuple[List[Dict[str, Any]], str, float]:
         """
         Find matching items from SQLite by exact title, case-insensitive title, substring title,
         or semantic search fallback.
+        target_type is treated as a SOFT preference: the LLM's type guess is often wrong when the
+        user doesn't explicitly say "task"/"note"/"reminder", so we never let an incorrect type
+        guess silently veto a real title match. `completed` is a HARD filter since it comes from
+        the intent itself (complete_item/restore_item), not from an LLM guess.
         Returns: (matches, match_type, confidence_score)
         """
         if not target_title:
             return [], "none", 0.0
             
         all_items = self.db.get_all_items()
-        
-        # Pre-filter by type and completed status if provided
-        filtered_items = []
-        for item in all_items:
-            if target_type and item.get('type') != target_type:
-                continue
-            if completed is not None and bool(item.get('completed')) != completed:
-                continue
-            filtered_items.append(item)
-            
+
+        # completed status is reliable (derived from intent, not guessed) - filter hard on it
+        completed_filtered = [
+            item for item in all_items
+            if completed is None or bool(item.get('completed')) == completed
+        ]
+
         target_title_stripped = target_title.strip()
         target_lower = target_title_stripped.lower()
-        
-        # 1. Exact title match (case-sensitive)
-        exact_matches = [item for item in filtered_items if item.get('title', '') == target_title_stripped]
-        if exact_matches:
-            return exact_matches, "exact_title", 1.0
-            
-        # 2. Case-insensitive title match
-        ci_matches = [item for item in filtered_items if item.get('title', '').lower() == target_lower]
-        if ci_matches:
-            return ci_matches, "case_insensitive_title", 1.0
-            
-        # 3. Substring title match
-        sub_matches = [item for item in filtered_items if target_lower in item.get('title', '').lower()]
-        if sub_matches:
-            return sub_matches, "substring_title", 1.0
-            
+
+        # Pass 1: honor the type guess (fast path when the LLM's guess happens to be correct)
+        if target_type:
+            type_and_completed_filtered = [
+                item for item in completed_filtered if item.get('type') == target_type
+            ]
+            result = self._title_waterfall(type_and_completed_filtered, target_title_stripped, target_lower)
+            if result:
+                return result
+
+        # Pass 2: retry without the type guess - a real title match should never be vetoed
+        # by an incorrect type guess.
+        result = self._title_waterfall(completed_filtered, target_title_stripped, target_lower)
+        if result:
+            return result
+
+        filtered_items = completed_filtered
+
         # 4. Semantic search fallback (never use semantic search alone - this is only a fallback)
         try:
             where_filter = {}
@@ -255,10 +297,10 @@ CRITICAL: Output ONLY valid JSON. No explanation, no markdown blocks. Keep it cl
         """Execute create action with transaction safety and verification"""
         item_data = {
             'type': item_type,
-            'title': title,
+            'title': (title or '').strip(),
             'description': description,
             'datetime': dt,
-            'priority': priority or 'medium',
+            'priority': priority if priority in ('low', 'medium', 'high') else 'medium',
             'tags': tags or [],
             'completed': False,
             'source': 'manual'
@@ -281,7 +323,7 @@ CRITICAL: Output ONLY valid JSON. No explanation, no markdown blocks. Keep it cl
             search_text = f"{title} {description or ''} {' '.join(tags or [])}"
             metadata = {
                 'type': item_type,
-                'priority': priority or 'medium',
+                'priority': priority if priority in ('low', 'medium', 'high') else 'medium',
                 'tags': ','.join(tags or []) if isinstance(tags, list) else (tags or ''),
                 'completed': False
             }
@@ -325,6 +367,12 @@ CRITICAL: Output ONLY valid JSON. No explanation, no markdown blocks. Keep it cl
 
     def execute_update(self, item_id: int, updates: Dict[str, Any]) -> Tuple[bool, Dict[str, Any], Optional[str]]:
         """Execute update action with transaction safety and persistence verification"""
+        # Safety net: never let a stray leading/trailing space slip into a stored title.
+        # A visually-invisible space here silently breaks exact/case-insensitive matching
+        # on every future reference to this item.
+        if 'title' in updates and isinstance(updates['title'], str):
+            updates['title'] = updates['title'].strip()
+
         original_item = self.db.get_item_by_id(item_id)
         if not original_item:
             print("=== ACTION FAILURE ===")

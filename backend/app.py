@@ -88,10 +88,10 @@ def parse_input():
             
             validated_item = {
                 'type': item.get('type', 'task'),
-                'title': item.get('title', 'Untitled'),
+                'title': (item.get('title') or 'Untitled').strip(),
                 'description': item.get('description'),
                 'datetime': item.get('datetime'),
-                'priority': item.get('priority', 'medium'),
+                'priority': item.get('priority') if item.get('priority') in ('low', 'medium', 'high') else 'medium',
                 'tags': item.get('tags', []),
                 'completed': item.get('completed', False),
                 'source': 'manual'
@@ -235,8 +235,8 @@ def ask_aura():
         if not result.get('success', False):
             return jsonify({
                 "success": False,
-                "error": result.get('error', 'Failed to generate response'),
-                "response": result.get('error', 'Failed to generate response'),
+                "error": result.get('error') or result.get('response') or 'Failed to generate response',
+                "response": result.get('response') or result.get('error') or 'Failed to generate response',
                 "sources": [],
                 "action_performed": False
             })
@@ -349,7 +349,8 @@ def get_items_grouped():
             'overdue': [],
             'today': [],
             'tomorrow': [],
-            'upcoming': []
+            'upcoming': [],
+            'no_date': []
         }
         
         print(f"\n--- Grouping Diagnostics ---")
@@ -359,7 +360,11 @@ def get_items_grouped():
         for item in all_items:
             dt_str = item.get('datetime')
             if not dt_str:
-                print(f"Item ID: {item.get('id')} | Datetime: None | Parsed: None | Assigned: none")
+                if item.get('type') == 'task' and not bool(item.get('completed')):
+                    grouped['no_date'].append(item)
+                    print(f"Item ID: {item.get('id')} | Datetime: None | Parsed: None | Assigned: no_date")
+                else:
+                    print(f"Item ID: {item.get('id')} | Datetime: None | Parsed: None | Assigned: none")
                 continue
             
             try:
