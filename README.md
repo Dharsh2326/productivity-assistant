@@ -104,21 +104,6 @@ AuraPlan/
 
 ---
 
-## Screenshots
-
-*   **Landing Page**:
-    *`[Placeholder: Landing Page Illustration showing hero section and features overview]`*
-*   **Dashboard View**:
-    *`[Placeholder: Dashboard interface with Overdue, Today, and No-Date categories]`*
-*   **Aura Chat Assistant**:
-    *`[Placeholder: Conversation sidebar showing action confirmation cards and disambiguation buttons]`*
-*   **Semantic Search**:
-    *`[Placeholder: Search page listing conceptually retrieved items with relevance scores]`*
-*   **Visual Day Planner**:
-    *`[Placeholder: Pillow-rendered timeline chart displaying daily agenda blocks]`*
-
----
-
 ##  Installation & Setup
 
 ### Prerequisites
