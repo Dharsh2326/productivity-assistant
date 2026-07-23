@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import auraAvatar from '../assets/images/aura-avatar.png';
 
 function FloatingAuraButton({ isOpen, onClick }) {
   return (
@@ -9,7 +9,7 @@ function FloatingAuraButton({ isOpen, onClick }) {
       title="Ask Aura AI Assistant"
     >
       <div className="aura-glow-effect"></div>
-      <Sparkles size={24} className="aura-icon" />
+      <img src={auraAvatar} alt="Aura" className="aura-icon" width={48} height={48} />
     </button>
   );
 }

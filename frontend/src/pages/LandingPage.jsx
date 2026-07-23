@@ -4,9 +4,17 @@ import '../styles/Landing.css';
 import personalImg from '../assets/images/personalImg.png';
 import professionalImg from '../assets/images/professionalImg.png';
 import studentImg from '../assets/images/StudentsImg.png';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 function LandingPage() {
   const navigate = useNavigate();
+
+  const [howItWorksRef, howItWorksVisible] = useScrollReveal();
+  const [meetAuraRef, meetAuraVisible] = useScrollReveal();
+  const [useCasesRef, useCasesVisible] = useScrollReveal();
+  const [featuresDeepRef, featuresDeepVisible] = useScrollReveal();
+  const [comingSoonRef, comingSoonVisible] = useScrollReveal();
+  const [finalCtaRef, finalCtaVisible] = useScrollReveal();
 
   const mainFeatures = [
     {
@@ -14,12 +22,16 @@ function LandingPage() {
       description: 'Natural language processing understands what you mean, when you mean it',
     },
     {
-      title: 'Lightning Fast',
-      description: 'Instant task creation with optimistic UI - no waiting for responses',
+      title: 'Conversational Assistant',
+      description: 'Chat with Aura to create, rename, complete, or delete items — with smart confirmation before anything destructive',
+    },
+    {
+      title: 'Semantic Search',
+      description: 'Find items by meaning, not just keywords — search "health" and find your gym or doctor tasks',
     },
     {
       title: 'Auto-Sync',
-      description: 'Automatically sync with calendar and extract tasks from emails',
+      description: 'Sync with calendar and extract tasks from emails (demo data)',
     },
   ];
 
@@ -132,7 +144,7 @@ function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="how-it-works">
+      <section className={`how-it-works scroll-reveal ${howItWorksVisible ? 'is-visible' : ''}`} ref={howItWorksRef}>
         <div className="section-container">
           <div className="section-header">
             <h2>How It Works</h2>
@@ -158,8 +170,49 @@ function LandingPage() {
         </div>
       </section>
 
+      {/* Meet Aura - Conversational Assistant Section */}
+      <section className={`meet-aura scroll-reveal ${meetAuraVisible ? 'is-visible' : ''}`} ref={meetAuraRef}>
+        <div className="section-container">
+          <div className="section-header">
+            <h2>Meet Aura, Your AI Assistant</h2>
+            <p>A real conversation, not just a form — Aura understands, confirms, and acts</p>
+          </div>
+
+          <div className="aura-demo-split">
+            <div className="aura-demo-content">
+              <h3>Talk to your workspace</h3>
+              <p>
+                Ask Aura to create, rename, complete, restore, or delete tasks, reminders,
+                and notes — all in plain English. When something's ambiguous, Aura asks
+                which item you meant instead of guessing. Before anything destructive,
+                Aura confirms first.
+              </p>
+              <ul className="feature-points">
+                <li>Multi-turn conversation with memory of your session</li>
+                <li>Disambiguation when multiple items match</li>
+                <li>Confirmation required before deletes or bulk actions</li>
+              </ul>
+            </div>
+
+            <div className="aura-demo-visual">
+              <div className="demo-card aura-chat-mockup">
+                <div className="demo-input">"delete the DBMS revision task"</div>
+                <div className="demo-arrow">→</div>
+                <div className="demo-output">
+                  <div><strong>Aura:</strong> I found 1 item: 'DBMS Revision Task'. Confirm delete?</div>
+                  <div className="mockup-confirm-row">
+                    <span className="mockup-btn-confirm">Confirm</span>
+                    <span className="mockup-btn-cancel">Cancel</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Perfect For Everyone - Zigzag Layout */}
-      <section className="use-cases-zigzag">
+      <section className={`use-cases-zigzag scroll-reveal ${useCasesVisible ? 'is-visible' : ''}`} ref={useCasesRef}>
         <div className="section-container">
           <div className="section-header">
             <h2>Perfect For Everyone</h2>
@@ -188,7 +241,7 @@ function LandingPage() {
       </section>
 
       {/* Features Deep Dive */}
-      <section className="features-deep">
+      <section className={`features-deep scroll-reveal ${featuresDeepVisible ? 'is-visible' : ''}`} ref={featuresDeepRef}>
         <div className="section-container">
           <div className="section-header">
             <h2>Powerful Features</h2>
@@ -242,7 +295,7 @@ function LandingPage() {
       </section>
 
       {/* Coming Soon Section */}
-      <section className="coming-soon-full">
+      <section className={`coming-soon-full scroll-reveal ${comingSoonVisible ? 'is-visible' : ''}`} ref={comingSoonRef}>
         <div className="section-container">
           <div className="coming-soon-section">
             <div className="coming-soon-badge">COMING SOON</div>
@@ -268,7 +321,7 @@ function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="final-cta">
+      <section className={`final-cta scroll-reveal ${finalCtaVisible ? 'is-visible' : ''}`} ref={finalCtaRef}>
         <div className="cta-container">
           <h2>Ready to Transform Your Productivity?</h2>
           <button className="btn-primary-large" onClick={() => navigate('/login')}>
